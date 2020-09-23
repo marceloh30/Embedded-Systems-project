@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+
+<head>
+    <title>Historia temperaturas</title>
+    <link rel="stylesheet" href='../static/style.css'/>
+ </head>
+ 
+<h1>Historia de temperaturas</h1>
+
+<p>Ingrese dos intervalos de tiempo para obtener el </p>
+<p>registro de temperaturas durante esas fechas!</p>
+
+ {% block title %}Historia de temperaturas{% endblock %}
+ {% block content %}
+<form action="">
+  <label for="fecha1">Desde el día: </label>
+  <input type="date" id="fecha1" name="fecha1"/>
+  <br>
+  <label for="t1">Desde la hora: </label>
+  <input type="time" id="t1" name="t1"/>
+<br><br>
+  <label for="fecha2">Hasta el día: </label>
+  <input type="date" id="fecha2" name="fecha2"/>
+  <br>
+  <label for="t2">Hasta la hora: </label>
+  <input type="time" id="t2" name="t2"/>
+  <br>
+  <input type="submit" id="send-signup" name="signup" value="Pedir" />
+</form>
+
+  <br>
+
+ {% endblock %}

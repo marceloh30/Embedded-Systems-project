@@ -67,6 +67,30 @@ def tomaDatos():
 		return redirect(url_for('index'))
 	return render_template('parametrosConfi.html')
 
+##Ruta de recepcion de intervalos de tiempo para Temps
+@app.route("/historiaTemp" , methods = ["GET", "POST"])
+def recTiempos():
+	if request.method == 'POST':
+		t1 = request.form['t1']
+		fecha1 = request.form['fecha1']
+		t2 = request.form['t2']
+		fecha2 = request.form['fecha2']
 
+		#print("t1: ",t1,", fecha1:",fecha1,", t2: ",t2,", fecha2: ",fecha2)
+		return redirect(url_for('index'))
+	return render_template('askHistTemp.html')
+'''
+##Ruta de recepcion de intervalos de tiempo para devolver 
+@app.route("/askHistTemp" , methods = ["GET", "POST"])
+def recTiempos():
+	if request.method == 'POST':
+		t1 = request.form['t1']
+		fecha1 = request.form['fecha1']
+		t2 = request.form['t2']
+		fecha2 = request.form['fecha2']
+		print("t1: ",t1,", fecha1:",fecha1,", t2: ",t2,", fecha2: ",fecha2)
+		return redirect(url_for('index'))
+	return render_template('askHistTemp.html')
+'''
 if __name__ == "__main__":
    app.run(host='192.168.0.200', port=8080, debug=True)
