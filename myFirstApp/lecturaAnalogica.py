@@ -36,7 +36,7 @@ while True:
     coso = 1.29/3.3
     R = analog_read()/(-math.log(1-coso)*550*10**-9)
     f = open("valorR.txt", "a")
-    f.write(str(datetime.now())+" "+str(R)+'\n')
+    f.write(str(datetime.now())+"- R = "+str(R)+'\n')
     f.close()
     print(analog_read(), str(R))
     time.sleep(5)

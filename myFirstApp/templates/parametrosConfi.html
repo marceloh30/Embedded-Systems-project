@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Parametros Configurables</title>
+    <link rel="stylesheet" href='../static/style.css'/>
+ </head>
+
+ {% block title %}Parametros Configurables{% endblock %}
+ {% block content %}
+     <form action="" method="post">
+         <label for="TL">Temperatura Baja: </label>
+         <input type="int" id="TL" name="TL" /><br>
+         <label for="TH">Temperatura Alta: </label>
+         <input type="int" id="TH" name="TH" /><br>
+         <label for="ts">Tiempo entre medidas: </label>
+         <input type="float" id="ts" name="ts" /><br>
+         <input type="submit" id="send-signup" name="signup" value="Registrar" />
+     </form>
+ {% endblock %}
