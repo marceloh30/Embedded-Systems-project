@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import variablesWeb
 from datetime import date
 from datetime import datetime
 from flask import Flask, render_template, redirect,request, url_for
@@ -15,62 +16,70 @@ GPIO.setup(ledRed, GPIO.OUT)
 # turn leds OFF 
 GPIO.output(ledRed, GPIO.LOW)
 f = open("valorR.txt", "r")#Por ahi meter en el lugar especifico que se usa y cerrar
-	
+
+#Ruta principal	
 @app.route("/")
 def index():
 	# Read Sensors Status
-	aux  = f.readline()
-	if aux.strip():
-		valorR = aux
+	valorR  = f.readline()
+	if len(valorR) != 0:
+		variablesWeb.resistencia = valorR
 	ledRedSts = GPIO.input(ledRed)
 	templateData = {
               'title' : 'GPIO output Status!',
               'ledRed'  : ledRedSts,
-              'valorR'  : valorR,
+              'valorR'  : variablesWeb.resistencia,
+			  'estadoAlarma' : variablesWeb.estadoAlarma
         }
 	return render_template('index.html', **templateData)
-	
+
+#Ruta para acciones con Alarma y Led
 @app.route("/<deviceName>/<action>")
 def action(deviceName, action):
 	if deviceName == 'ledRed':
 		actuator = ledRed
-	#if deviceName == 'envioParametros':
-	#	return render_template('parametrosConfi.html')
-	if action == "on":
-		GPIO.output(actuator, GPIO.HIGH)
-	if action == "off":
-		GPIO.output(actuator, GPIO.LOW)
+		if action == "on":
+			GPIO.output(actuator, GPIO.HIGH)
+		else:
+			GPIO.output(actuator, GPIO.LOW)
+	if deviceName == 'alarma':
+		if action == "on":
+			variablesWeb.estadoAlarma = True
+		else:
+			variablesWeb.estadoAlarma = False
+	
 	ledRedSts = GPIO.input(ledRed)
-   	aux  = f.readline()
-	if aux.strip():
-		valorR = aux
+	
+	valorR  = f.readline()
+	if len(valorR) != 0:
+		variablesWeb.resistencia = valorR
 	templateData = {
               'ledRed'  : ledRedSts,
               'valorR'  : valorR,
+			  'estadoAlarma' : variablesWeb.estadoAlarma
 	}
+
 	return render_template('index.html', **templateData)
+
+#Ruta de envio y recepcion de parametros
 @app.route("/envioParametros" , methods = ["GET", "POST"])
 def tomaDatos():
 	if request.method == 'POST':
 		TL = request.form['TL']
 		TH = request.form['TH']
 		ts = request.form['ts']
-		#destino = request.form['destino']
-		#tA = request.form['tA']
-		#Rt = request.form['Rt']
-		#Ct = request.form['Ct']
-		#Rl = request.form['Rl']
-		#Cl = request.form['Cl']
-		pc = open("configuracion.txt", "w")
-		pc.write("TL = "+str(TL)+'\n')
-		pc.write("TH = "+str(TH)+'\n')
-		pc.write("ts = "+str(ts)+'\n')
-		pc.close()
+		destino = request.form['destino']
+		tA = request.form['tA']
+		Rt = request.form['Rt']
+		Ct = request.form['Ct']
+
+		if variablesWeb.verificacionVariables(TL, TH, ts, destino, tA, Rt, Ct):
+			variablesWeb.guardadoVariables(TL, TH, ts, destino, tA, Rt, Ct)
+		
 		return redirect(url_for('index'))
 	return render_template('parametrosConfi.html')
 
-
-##Funcion de busqueda de fechas: Retorna valorNum(temp o lux),Fecha
+##Funcion de busqueda de fechas: Retorna valorNum(temp o lux) y fecha
 def buscarValores(arch,fecha_desde,fecha_hasta):
 	#arch = open("valorTemp.txt" o "valorLux.txt", "r")
 	#Ambos tienen formato: datatime-valorNum
