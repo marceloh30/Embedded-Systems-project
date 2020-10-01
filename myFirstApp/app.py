@@ -107,6 +107,7 @@ def str_conNums(str_in):
 @app.route("/historiaTemp" , methods = ["GET", "POST"])
 def recTiempos():
 	if request.method == 'POST':
+
 		t1 = str(request.form['t1'])
 		fecha1 = str(request.form['fecha1'])
 		t2 = str(request.form['t2'])
@@ -114,7 +115,7 @@ def recTiempos():
 		#print(t1,fecha1,"... hasta:",t2,fecha2)
 		#print(str_conNums(t1),str_conNums(t2),str_conNums(fecha1),str_conNums(fecha2))
 		if (str_conNums(t1) and str_conNums(t2) and str_conNums(fecha2) and str_conNums(fecha1)):
-			##Formato- t: '18:06', fecha: '2020-09-01'
+			##Formato -> t: '18:06', fecha: '2020-09-01'
 			hm1=t1.split(':')
 			dma1=fecha1.split('-')
 			hm2=t2.split(':')
@@ -122,9 +123,15 @@ def recTiempos():
 			#args de datetime: Anio, Mes, Dia, Hora, Min, Seg, Miliseg
 			f_desde=datetime(int(dma1[0]),int(dma1[1]),int(dma1[2]),int(hm1[0]),int(hm1[1]),0,0) ##seg y ms los tomo en 0
 			f_hasta=datetime(int(dma2[0]),int(dma2[1]),int(dma2[2]),int(hm2[0]),int(hm2[1]),0,0) ##seg y ms los tomo en 0
-			print("Desde:",f_desde,".. Hasta:",f_hasta,"Ahora a buscarle en archivo")
-			##temps,fechas=buscarValores(archTemp??,f_desde,f_hasta)
-			##Verificar si son nulas o no y chau
+			print("Desde:",f_desde,".. Hasta:",f_hasta,"Ahora a buscarle en H_Temp.txt")
+
+			#Abro el arch. de temperaturas, busco valores y escribo
+			archTemp = open("H_Temp.txt")
+			temps,fechas=buscarValores(archTemp,f_desde,f_hasta)
+			archTemp.close()
+			if (temps != 0):
+				#Creo archivo descargable por usuario?
+				print(temps,fechas)	
 		else:
 			print("Error recibiendo datos")
 		return redirect(url_for('index'))
