@@ -4,12 +4,13 @@
       <link rel="stylesheet" href='../static/style.css'/>
    </head>
    <body>
-		<h1>Alto obligatorio wachin</h1>
-		<p>Work in progress vpe</p>
+		<h1>Obligatorio 1 Embebidos</h1>
+		<p>Work in progress..</p>
 		<h2> Estados </h2>
 		<h3> RED LED ==>  {{ ledRed  }}</h3>
 		<h3> R ==>  {{ valorR  }}</h3>
-
+		<h3> Estado Alarma ==>  {{ estadoAlarma  }}</h3>
+	   	<br>
 		<h4>  
 			<a href="/" class="button">Refrescar valores!</a>  
 		</h4>
@@ -30,6 +31,11 @@
 			HISTORIA DE TEMPERATURAS:
 			<br>
 			<a href="/historiaTemp" class="button">Ingreso de tiempos</a>  
+		</h3>
+	   	<h3> 
+			Alarma ==> 
+			<a href="/alarma/on" class="button">Prender Alarma</a>  
+			<a href="/alarma/off"class="button">Apagar Alarma</a>
 		</h3>
 		
    </body>
