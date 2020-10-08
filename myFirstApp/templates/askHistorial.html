@@ -1,17 +1,31 @@
 <!DOCTYPE html>
 
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 15px;
+  text-align: left;
+}
+#t01 {
+  width: 100%;    
+  background-color: #f1f1c1;
+}
+</style>
 
 <head>
-    <title>Historia temperaturas</title>
+    <title>Pedido de Historial</title>
     <link rel="stylesheet" href='../static/style.css'/>
- </head>
+</head>
  
-<h1>Historia de temperaturas</h1>
+<h1>Historia de temperaturas/lux</h1>
 
 <p>Ingrese dos intervalos de tiempo para obtener el </p>
-<p>registro de temperaturas durante esas fechas!</p>
+<p>registro de temperaturas/lux durante esas fechas!</p>
 
- {% block title %}Historia de temperaturas{% endblock %}
+ {% block title %}Historia de temperaturas/lux{% endblock %}
  {% block content %}
 <form action="" method="post">
   <label for="tipo">Historial de (T o L): </label>
@@ -32,5 +46,22 @@
 </form>
 
   <br>
+  
+<form method="post">
+  <ul id="listWithHandle">
+    {% for name in names %}
+        <li>
+			<span class="my-handle">:+:</span>
+            <input type="hidden" name="handles[]" value="{{ name }}"/> {{ name }}
+        </li>
+		<
+    {% endfor %}
+  </ul>
+
+
+    <div>
+        <button class="btn btn-lg btn-primary">Submit</button>
+    </div>
+  </form>
 
  {% endblock %}
