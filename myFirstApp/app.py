@@ -10,7 +10,7 @@ GPIO.setwarnings(False)
 ledRed = 17
 #initialize GPIO status variables
 ledRedSts = 0
-valorR = 0
+valorT = 0
 # Define led pins as output
 GPIO.setup(ledRed, GPIO.OUT)    
 # turn leds OFF 
@@ -164,6 +164,7 @@ def str_conNums(str_in):
 ##Ruta de recepcion de intervalos de tiempo para Temps-Luxs
 @app.route("/historial" , methods = ["GET", "POST"])
 def recTiempos():
+	templateData = [[],[]] #Datos para pagina que muestre valores
 	if request.method == 'POST':
 		tipo = str(requst.form['tipo']) #= "T" o "L"
 		t1 = str(request.form['t1'])
@@ -196,13 +197,16 @@ def recTiempos():
 			[temps,fechas]=buscarValores(str(tipo),f_desde,f_hasta)
 
 			if (len(temps) != 0 and len(fechas) != 0):
-				if(len(temps) < 50): #Si tengo menos de 50 valores, los envio a la pagina 
+				if(len(temps) <= 10): #Si tengo menos de 10 valores, los envio a la pagina 
 					
-				print(temps,fechas)	
+					#print(temps,fechas)
+				else: #Tengo mas de 10 valores, muestro arch. descargable	
 		else:
 			print("Error recibiendo datos")
 		return redirect(url_for('index'))
-	return render_template('askHistorial.html')
+	templateData = accionesIndex()
+	#Ver como cambiar:
+	return render_template('mostrarHistorial.html', **templateData)
 
 
 if __name__ == "__main__":

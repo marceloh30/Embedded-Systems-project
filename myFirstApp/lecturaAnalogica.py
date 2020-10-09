@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 import math
 import sys #importo sys para obtener parametros de la ejecucion.
+import variablesWeb
 
 ##Suponemos que tanto LDR como termistor son siempre el mismo (o el mismo tipo),
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
@@ -13,6 +14,7 @@ Ro_LDR=2.57**3  # Ro(Lo)- en Ohms
 gama_LDR=0.8    # parametro caracteristico de LDR (Adimensionado)
 To=25+273       # Kelvin
 Ro_NTC=10**3    # Ro(To)- en Ohms
+B = 3977        # B de NTC (Kelvin)
 
 GPIO.setmode(GPIO.BCM)
 
@@ -64,19 +66,27 @@ except Exception as e:
     with open(strArch, 'x') as f:
         print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
 
+#Funcion para convertir la resistencia leida en Temp o Lux
+def convertVar(res,tipo):
+    valRet = 0.0
+    if (tipo == "T"):
+        valRet = 1 / ( math.abs(math.log(res/Ro_NTC))/B + 1/To_NTC )
+    elif (tipo == "L"):
+        valRet = Lo * math.pow(res/Ro_LDR,gama_LDR)
+    else:
+        valRet = -1 #Error inesperado
+    return valRet
+
 while True:
 
     #Obtengo de .txt de parametros configurables
     coso = 1.29/3.3
     R = analog_read()/(-math.log(1-coso)*550*10**-9)    
-    
-
-    #Creo string y escribo valor
-    strn=str(datetime.now())+","+str(valNum)+"\n"
-    f = open(strArch, "a")
-    archT.write(strn)
-    f.write(+"- R = "+str(R)+'\n')
-    f.close()
-    print(analog_read(), str(R))
-    time.sleep(5)
+    valNum = convertVar(R,str(sys.argv[1]))
+    valNum = math.trunc(valNum*10)/1 #Lo trunco a formato "T=x.x"
+    #Creo string y escribo valor en strArch
+    with open(strArch, "a") as f:
+        strn=str(datetime.now())+","+str(valNum)+"\n"
+        f.write(strn)
+    time.sleep(variablesWeb.valoresIngresados[2]) #Espero ts entre medidas
     
