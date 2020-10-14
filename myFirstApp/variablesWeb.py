@@ -1,4 +1,6 @@
 import time
+from datetime import date
+from datetime import datetime
 
 global temperatura
 temperatura = 0
@@ -16,13 +18,13 @@ archConf="configuracion.txt"
 ##Pruebo abrir archConf, si no existe lo creo.
 try:    
     with open(archConf,"r") as arch:
-        print("Archivo",strConf,"existente.")
+        print("Archivo",archConf,"existente.")
         #Leo los valores del archivo:
 
 
 except Exception as e:
     #No existe archivo. Lo creo:
-    with open(strArch, 'x') as f:
+    with open(archConf, 'x') as f:
         print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
 
 
@@ -102,10 +104,63 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
     return aux
 
 def envioAlarma():
-    with open("EstadoDeAlarma.txt", "w") as ea:
+    with open("EstadoDeAlarma.txt", "w") as eA:
 
         if estadoAlarma == 1:
             eA.write("1")
         else:
             eA.write("0")
 
+
+#Funcion para leer valores num (Temp o Lux) de sus respectivos txt
+def leerValor(tipo, pos): #Devuelve largo de linea y valNum
+	rets=[0,0]
+	if(tipo=="T"):
+		strArch="valoresT.txt"
+	else:
+		strArch="valoresL.txt"
+	try:
+		with open(strArch,"r") as f:
+			#Lo llevo a la posicion del ultimo ingreso
+			f.seek(pos)
+			#Leo el ultimo valor
+			linea = f.readline()
+			rets[1]=len(linea) 		#Guardo bytes leidos de linea		
+			rets[0]=linea.split(",")[1]	#Guardo valNum
+	except Exception as e:
+		# get line number and error message
+		with open(strArch, "x") as f:
+			print(e,"\nArchivo no existe. Creo el archivo",strArch,".")
+	return rets
+
+
+##Funcion de busqueda de fechas: Retorna Fechas,valorNum(temp o lux)
+def buscarVals(tipo,f_desde,f_hasta):
+
+    if (tipo=="T"):
+        strArch = "valoresT.txt"
+    else:
+        strArch = "valoresL.txt"
+
+    with open(strArch, "r") as arch:
+        #Defino listas a devolver
+        rets=[[],[]] #rets[0]=fechas[],[1]=vals[]
+
+        for linea in arch.readlines():
+            #separo fecha y valor num. de linea:
+            arr=linea.split(",")
+            #Separo dia y horario de la fecha de arr
+            fh_array=arr[0].split(" ")
+            #Separo dia,mes,anio de la fecha
+            dte=fh_array[0].split("-")
+            #Separo hora, min y seg del horario
+            hora=fh_array[1].split(":")
+
+            #Creo datetime con los valores de linea
+            fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0)
+            valNum=float(arr[1])
+            #Verifico si estoy dentro de valores de tiemop
+            if (f_desde <= fecha_l and f_hasta >= fecha_l):
+                rets[0].append(fecha_l)
+                rets[1].append(valNum)
+    return rets

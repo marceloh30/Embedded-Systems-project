@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 import variablesWeb
 from datetime import date
 from datetime import datetime
-from flask import Flask, render_template, redirect,request, url_for
+from flask import Flask, render_template, redirect,request, url_for, flash
 app = Flask(__name__)
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -15,50 +15,30 @@ valorT = 0
 GPIO.setup(ledRed, GPIO.OUT)    
 # turn leds OFF 
 GPIO.output(ledRed, GPIO.LOW)
-app.secret_key = 'obligatorio'
+app.secret_key = 'obligatorio' #Nesesario para usar flash
 
 ##Ejecuto otros programas necesarios para el buen funcionamiento del sist:
 #Lectura analogica de temperatura:
-exec(lecturaAnalogica.py,"T")
+#exec("lecturaAnalogica.py","T")
 
-#Funcion para leer valores num (Temp o Lux) de sus respectivos txt
-def leerValor(tipo, pos): #Devuelve largo de linea y valNum
-	rets=[0,0]
-	if(tipo=="T"):
-		strArch="valoresT.txt"
-	else:
-		strArch="valoresL.txt"
-	try:
-		with open(strArch,"r") as f:
-			#Lo llevo a la posicion del ultimo ingreso
-			f.seek(pos)
-			#Leo el ultimo valor
-			linea = f.readline()
-			rets[1]=length(linea) 		#Guardo bytes leidos de linea		
-			rets[0]=linea.split(",")[1]	#Guardo valNum
-	except Exception as e:
-		# get line number and error message
-		with open(strArch, 'x') as f:
-			print(e,"\nArchivo no existe. Creo el archivo",strArch,".")
-	return rets
 
-#Ruta principal	
 def accionesIndex():
-	# Read Sensors Status
-	[valorT,len_linea]  = leerValor("T",variablesWeb.posicionLectura)
-	if len(valorT) != 0:
-		variablesWeb.temperatura = valorT
-		#Sumo los bytes para la nueva posicion de lectura
-		variablesWeb.posicionLectura = variablesWeb.posicionLectura + len_linea
-	
-	ledRedSts = GPIO.input(ledRed)
-	templateData = {
+    # Read Sensors Status
+    [valorT,len_linea]  = variablesWeb.leerValor("T",variablesWeb.posicionLectura)
+    if len(valorT) != 0:
+        variablesWeb.temperatura = valorT
+        #Sumo los bytes para la nueva posicion de lectura
+        variablesWeb.posicionLectura = variablesWeb.posicionLectura + len_linea
+
+    ledRedSts = GPIO.input(ledRed)
+    templateData = {
         'title' : 'GPIO output Status!',
         'ledRed'  : ledRedSts,
         'valorT'  : variablesWeb.temperatura,
-		'estadoAlarma' : variablesWeb.estadoAlarma
+        'estadoAlarma' : variablesWeb.estadoAlarma
     }
-	return datosTemplate
+    return templateData
+
 
 @app.route("/")
 def index():
@@ -97,8 +77,6 @@ def action(deviceName, action):
 		else:
 			variablesWeb.estadoAlarma = False
 	
-	ledRedSts = GPIO.input(ledRed)
-
 	#Realizo la actualizacion de datos para index:
 	templateData = accionesIndex()
 
@@ -129,41 +107,14 @@ def tomaDatos():
 		return redirect(url_for('index'))
 	return render_template('parametrosConfi.html')
 
-##Funcion de busqueda de fechas: Retorna Fechas,valorNum(temp o lux)
-def buscarVals(tipo,fecha_desde,fecha_hasta):
-	
-    if (tipo=="T"):
-        strArch = "valoresT.txt"
-    else:
-        strArch = "valoresL.txt"
 
-	with open(strArch,"r") as archTL:
-		
-        #Defino listas a devolver    
-        fechas=[]
-        vals=[]
-
-        for linea in archTL.readlines():
-            #Separo fecha para hacer un datetime
-            arr=linea.split(",")
-            fh_array=arr[0].split(" ")
-            dte=fh_array[0].split("-")
-            hr=fh_array[1].split(":")
-            #Creo datetime con valores de la linea
-        	fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hr[0]),int(hr[1]),int(hr[2]),0)
-			valNum=float(arr[1])
-            #Verifico si estoy dentro de valores de tiempo
-            if ((f_desde <= fecha_l) and (f_hasta >= fecha_l)):
-                fechas.append(fecha_l)
-                vals.append(valNum)
-    
-    return [[fechas],[vals]] 
 
 #Funcion para verificar si el string contiene numeros
 def str_conNums(str_in):
 	return any(char.isdigit() for char in str_in)
 
 ##Ruta de recepcion de intervalos de tiempo para Temps-Luxs
+'''
 @app.route("/historial" , methods = ["GET", "POST"])
 def recTiempos():
 	templateData = [[],[]] #Datos para pagina que muestre valores
@@ -183,7 +134,7 @@ def recTiempos():
 			#args de datetime: Anio, Mes, Dia, Hora, Min, Seg, Miliseg
 			f_desde=datetime(int(dma1[0]),int(dma1[1]),int(dma1[2]),int(hm1[0]),int(hm1[1]),0,0) ##seg y ms los tomo en 0
 			f_hasta=datetime(int(dma2[0]),int(dma2[1]),int(dma2[2]),int(hm2[0]),int(hm2[1]),0,0) ##seg y ms los tomo en 0
-			''' VERIFICACION DE FECHAS!!! Puedo probar un try en los datetime por las dudas que se pase de hora o algo d eso
+			 VERIFICACION DE FECHAS!!! Puedo probar un try en los datetime por las dudas que se pase de hora o algo d eso
 			if(f_desde > 0):
 				print("Si, es fecha")
 			if(f_hasta > 0):
@@ -191,7 +142,7 @@ def recTiempos():
 			else:
 				print("wtf man")	
 				flash('pifiaste.. escribi bien las fechas.')
-			'''
+			
 			print("Busco desde:",f_desde,", Hasta:",f_hasta)
 
 			#Busco valores segun tipo y escribo
@@ -215,6 +166,6 @@ def muestraHist():
 
 
 	return redirect(url_for('index'))
-
+'''
 if __name__ == "__main__":
    app.run(host='192.168.0.200', port=8080, debug=True)

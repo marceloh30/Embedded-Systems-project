@@ -17,9 +17,9 @@ try:
         estadoAlarma.close()
         configuracion = open("configuracion.txt", "r")
         confi = configuracion.readlines()
-        tA = confi[4].split("= ")[1]#Hacer magia
+        tA = confi[4].split("= ")[1]
         print(tA)
-        destino = confi[3].split("= ")[1]#Leer el valor querido nose como chelo creo que si
+        destino = confi[3].split("= ")[1]
         print(destino)
         configuracion.close()
         
