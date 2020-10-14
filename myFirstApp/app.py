@@ -25,7 +25,7 @@ app.secret_key = 'obligatorio' #Nesesario para usar flash
 def accionesIndex():
     # Read Sensors Status
     [valorT,len_linea]  = variablesWeb.leerValor("T",variablesWeb.posicionLectura)
-    if len(valorT) != 0:
+    if (valorT) != 0:
         variablesWeb.temperatura = valorT
         #Sumo los bytes para la nueva posicion de lectura
         variablesWeb.posicionLectura = variablesWeb.posicionLectura + len_linea

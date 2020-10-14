@@ -112,26 +112,29 @@ def envioAlarma():
             eA.write("0")
 
 
-#Funcion para leer valores num (Temp o Lux) de sus respectivos txt
+#Funcion para leer valores num(Temp o Lux) de sus respectivos txt
 def leerValor(tipo, pos): #Devuelve largo de linea y valNum
-	rets=[0,0]
-	if(tipo=="T"):
-		strArch="valoresT.txt"
-	else:
-		strArch="valoresL.txt"
-	try:
-		with open(strArch,"r") as f:
-			#Lo llevo a la posicion del ultimo ingreso
-			f.seek(pos)
-			#Leo el ultimo valor
-			linea = f.readline()
-			rets[1]=len(linea) 		#Guardo bytes leidos de linea		
-			rets[0]=linea.split(",")[1]	#Guardo valNum
-	except Exception as e:
-		# get line number and error message
-		with open(strArch, "x") as f:
-			print(e,"\nArchivo no existe. Creo el archivo",strArch,".")
-	return rets
+    rets=[0,0]
+    if (tipo == "T"):
+        strArch = "valoresT.txt"
+    else:
+        strArch = "valoresL.txt"
+    try:
+        with open(strArch, "r") as f:
+            #Lo llevo a la posicion del ultimo ingreso
+            f.seek(pos)
+            #Leo el ultimo valor
+            linea = f.readline()
+            rets[1] = len(linea)
+            if rets[1] != 0:
+                rets[0]=linea.split(",")[1]	#Guardo valNum
+            
+    except Exception as e:
+        with open(strArch, "x") as f:
+            print(e, "\nArchivo no existe. Creo el archivo", strArch, ".")
+    
+    return rets
+
 
 
 ##Funcion de busqueda de fechas: Retorna Fechas,valorNum(temp o lux)
