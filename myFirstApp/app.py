@@ -47,17 +47,17 @@ def accionesIndex():
 	# Read Sensors Status
 	[valorT,len_linea]  = leerValor("T",variablesWeb.posicionLectura)
 	if len(valorT) != 0:
-		variablesWeb.temp = valorT
-	#Sumo los bytes para la nueva posicion de lectura (actualmente solo de T, habria que agregar posicionLecturaL)	
-	variablesWeb.posicionLectura = variablesWeb.posicionLectura + len_linea
-
+		variablesWeb.temperatura = valorT
+		#Sumo los bytes para la nueva posicion de lectura
+		variablesWeb.posicionLectura = variablesWeb.posicionLectura + len_linea
+	
 	ledRedSts = GPIO.input(ledRed)
 	templateData = {
-              'title' : 'GPIO output Status!',
-              'ledRed'  : ledRedSts,
-              'valorT'  : variablesWeb.temperatura,
-			  'estadoAlarma' : variablesWeb.estadoAlarma
-        }
+        'title' : 'GPIO output Status!',
+        'ledRed'  : ledRedSts,
+        'valorT'  : variablesWeb.temperatura,
+		'estadoAlarma' : variablesWeb.estadoAlarma
+    }
 	return datosTemplate
 
 @app.route("/")
@@ -121,9 +121,11 @@ def tomaDatos():
 		Cl = request.form.get('Cl', type=float)
 
 		#Verifico si concuerda con los valores maximos y minimos y en ese caso guardo las variables recibidas
-		if variablesWeb.verificacionVariables(TL, TH, ts, destino, tA, Rt, Ct, Rl, Cl):
-			variablesWeb.guardadoVariables(TL, TH, ts, destino, tA, Rt, Ct, Rl, Cl)
-		
+		aux = variablesWeb.cambioValores(TL, TH, ts, destino, tA, Rt, Ct, Rl, Cl)
+		if len(aux) > 0:
+			flash('Se ingresaron de forma incorrecta los parametros: ' + aux)
+			print(aux)	
+			
 		return redirect(url_for('index'))
 	return render_template('parametrosConfi.html')
 
@@ -194,12 +196,12 @@ def recTiempos():
 
 			#Busco valores segun tipo y escribo
 			
-			[temps,fechas]=buscarValores(str(tipo),f_desde,f_hasta)
+			templateData = buscarValores(str(tipo),f_desde,f_hasta)
 
 			if (len(temps) != 0 and len(fechas) != 0):
 				if(len(temps) <= 10): #Si tengo menos de 10 valores, los envio a la pagina 
 					
-					#print(temps,fechas)
+					print(temps,fechas)
 				else: #Tengo mas de 10 valores, muestro arch. descargable	
 		else:
 			print("Error recibiendo datos")
@@ -207,7 +209,12 @@ def recTiempos():
 	templateData = accionesIndex()
 	#Ver como cambiar:
 	return render_template('mostrarHistorial.html', **templateData)
+#Muestra del historial de las fechas pedidas
+@app.route("/historial/muestra")
+def muestraHist():
 
+
+	return redirect(url_for('index'))
 
 if __name__ == "__main__":
    app.run(host='192.168.0.200', port=8080, debug=True)

@@ -2,11 +2,29 @@ import time
 
 global temperatura
 temperatura = 0
-valoresPredeterminados = [0, 200, 5, "nadie", 10, 10000, 550*10**-9]
-valoresIngresados = [0, 0, 5, " ", 0, 10000, 550*10**-9, 10000, 0] #TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
+#TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
+valoresPredeterminados = [0, 200, 5, "nadie", 10, 10000, 550*10**-9, 10000, 200*10**-9]
+#Comienzo con valores predeterminados
+valoresIngresados = valoresPredeterminados 
+
 estadoAlarma = False
 tiempoEntreAlarmas = 0
+global posicionLectura 
 posicionLectura = 0
+archConf="configuracion.txt"
+
+##Pruebo abrir archConf, si no existe lo creo.
+try:    
+    with open(archConf,"r") as arch:
+        print("Archivo",strConf,"existente.")
+        #Leo los valores del archivo:
+
+
+except Exception as e:
+    #No existe archivo. Lo creo:
+    with open(strArch, 'x') as f:
+        print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
+
 
 
 def verificacionVariable(variable, type): #Verifico si la variable es del tipo que espero 
@@ -15,18 +33,19 @@ def verificacionVariable(variable, type): #Verifico si la variable es del tipo q
     else:
         return True
 
-def guardadoVariables(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
-    pc = open("configuracion.txt", "w")
-    pc.write("TL = "+str(TL)+'\n')
-    pc.write("TH = "+str(TH)+'\n')
-    pc.write("ts = "+str(ts)+'\n')
-    pc.write("destino = "+str(destino)+'\n')
-    pc.write("tA = "+str(tA)+'\n')
-    pc.write("Rt = "+str(Rt)+'\n')
-    pc.write("Ct = "+str(Ct)+'\n')
-    pc.write("Rl = "+str(Rl)+'\n')
-    pc.write("Cl = "+str(Cl)+'\n')
-    pc.close()
+def guardadoVariables():
+    #guardo variables en archivo de configuracion
+    with open(archConf, "w") as pc: 
+        pc.write("TL = "+str(valoresIngresados[0])+'\n')
+        pc.write("TH = "+str(valoresIngresados[1])+'\n')
+        pc.write("ts = "+str(valoresIngresados[2])+'\n')
+        pc.write("destino = "+str(valoresIngresados[3])+'\n')
+        pc.write("tA = "+str(valoresIngresados[4])+'\n')
+        pc.write("Rt = "+str(valoresIngresados[5])+'\n')
+        pc.write("Ct = "+str(valoresIngresados[6])+'\n')
+        pc.write("Rl = "+str(valoresIngresados[7])+'\n')
+        pc.write("Cl = "+str(valoresIngresados[8])+'\n')
+
 
 def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
     aux = "" #Variable para devolver los parametros erroneos y mostrarlos en pagina web
@@ -75,17 +94,18 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
         if Cl is not None:
             valoresIngresados[8] = Cl
     else:
-        aux = aux + "Cl"        
+        aux = aux + "Cl"    
+
+    #Guardo variables:
+    guardadoVariables()
 
     return aux
 
-def envioAlarma(tA):
-    if estadoAlarma == 1:
-        if valoresIngresados[1] > temperatura or valoresIngresados[2] < temperatura:
-            if tiempoEntreAlarmas == 0:
-               tiempoEntreAlarmas =  time.time()
-               exec("alarma.py")
-            elif (tiempoEntreAlarmas - time.time()) == (valoresIngresados[5]*60):
-               exec("alarma.py")
-            
-        
+def envioAlarma():
+    with open("EstadoDeAlarma.txt", "w") as ea:
+
+        if estadoAlarma == 1:
+            eA.write("1")
+        else:
+            eA.write("0")
+
