@@ -117,7 +117,12 @@ def str_conNums(str_in):
 
 @app.route("/historial" , methods = ["GET", "POST"])
 def recTiempos():	
-	templateData={}
+	templateData= {
+		"numLineas":0,
+		"temps":[],
+		"fechas":[],
+		"arch": None	
+	}
 	if request.method == 'POST':
 		#Recibo valores desde pagina web
 		tipo = str(request.form['tipo']) #= "T" o "L"
@@ -142,35 +147,38 @@ def recTiempos():
 			print("Busco desde:",f_desde,", Hasta:",f_hasta)
 
 			#Busco valores segun tipo y fechas y obtengo temps y fechas que se encuentren entre f_desde y f_hasta
+			numLineas=0
 			[temps,fechas] = variablesWeb.buscarVals(str(tipo),f_desde,f_hasta)
-			needArch = False
+			if len(temps) == len(fechas):
+				numLineas = len(temps)
+			else:
+				print(len(temps),"diferente a ",len(fechas))
+				numLineas = min(map(len,[temps,fechas]))
 			
 			if (len(temps) != 0 and len(fechas) != 0):
 				if(len(temps) <= 10): #Si tengo menos de 10 valores, los envio a la pagina 
 					print(temps,fechas)
 					templateData= {
-						"needArch":needArch,
+						"numLineas":numLineas,
 						"temps":temps,
 						"fechas":fechas,
-						"arch":None	
+						"arch": None	
 					}
 				else: #Tengo mas de 10 valores, muestro arch. descargable	
-					needArch = True
 					print("Mas de 10 valores, crear archivo pa descargar")
 					#Obtengo dirArch y creo archivo con arch_Historial(tipo,vals,fechas)
 					dirArch = variablesWeb.arch_Historial(str(tipo),temps,fechas)
 					templateData = {
-						"needArch":needArch,
+						"numLineas":numLineas,
 						"temps":temps,
 						"fechas":fechas,
 						"arch": dirArch	
 					}
 		else:
 			flash("Error al recibir fechas: valores no numericos!")
-		return redirect(url_for('index'))
-	templateData = accionesIndex()
-	#Ver como cambiar:
-	return render_template('mostrarHistorial.html', **templateData)
+		return render_template('Historial.html', **templateData)
+
+	return render_template('askHistorial.html')
 #Muestra del historial de las fechas pedidas
 @app.route("/historial/muestra")
 def muestraHist():

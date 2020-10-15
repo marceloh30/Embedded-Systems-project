@@ -113,6 +113,7 @@ def envioAlarma():
 
 #Funcion para leer valores num(Temp o Lux) de sus respectivos txt
 def leerValor(tipo, pos): #Devuelve largo de linea y valNum
+    print(pos,": pos!!")
     rets=[0,0]
     if (tipo == "T"):
         strArch = "valoresT.txt"
@@ -124,13 +125,15 @@ def leerValor(tipo, pos): #Devuelve largo de linea y valNum
             f.seek(pos)
             #Leo el ultimo valor
             linea = f.readline()
-            rets[1] = len(linea)
+            rets[1] = len(linea)-1 #Le resto uno para que no se pase
             if rets[1] != 0:
                 rets[0]=linea.split(",")[1]	#Guardo valNum
             
     except Exception as e:
-        with open(strArch, "x") as f:
-            print(e, "\nArchivo no existe. Creo el archivo", strArch, ".")
+        print(e,": excepcion capturada.")
+        if(e==IOError):
+            with open(strArch, "x") as f:
+                print(e, "\nArchivo no existe. Creo el archivo", strArch, ".")
     
     return rets
 
@@ -168,7 +171,7 @@ def buscarVals(tipo,f_desde,f_hasta):
     return rets
 
 def arch_Historial(tipo,vals,fechas):
-    dirArch="/archHistorial.txt"
+    dirArch="/archivoHistorial.txt"
     try:
         with open(dirArch,"x") as cf:
             print(str(cf),"Archivo de historial creado")

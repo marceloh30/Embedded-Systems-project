@@ -25,7 +25,7 @@ th, td {
 <p>Ingrese dos intervalos de tiempo para obtener el </p>
 <p>registro de temperaturas/lux durante esas fechas!</p>
 
- {% block title %}Historia de temperaturas/lux{% endblock %}
+
  {% block content %}
 <form action="" method="post">
   <label for="tipo">Historial de (T o L): </label>
@@ -44,24 +44,5 @@ th, td {
   <br>
   <input type="submit" id="send-signup" name="signup" value="Pedir" />
 </form>
-
-  <br>
-  
-<form method="post">
-  <ul id="listWithHandle">
-    {% for name in names %}
-        <li>
-			<span class="my-handle">:+:</span>
-            <input type="hidden" name="handles[]" value="{{ name }}"/> {{ name }}
-        </li>
-		<
-    {% endfor %}
-  </ul>
-
-
-    <div>
-        <button class="btn btn-lg btn-primary">Submit</button>
-    </div>
-  </form>
-
  {% endblock %}
+  <br>

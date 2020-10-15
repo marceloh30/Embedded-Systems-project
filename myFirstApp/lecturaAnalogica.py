@@ -12,7 +12,7 @@ import variablesWeb
 Lo=390          # Lux
 Ro_LDR=2.57**3  # Ro(Lo)- en Ohms
 gama_LDR=0.8    # parametro caracteristico de LDR (Adimensionado)
-To=25+273       # Kelvin
+To_NTC=25+273       # Kelvin
 Ro_NTC=10**3    # Ro(To)- en Ohms
 B = 3977        # B de NTC (Kelvin)
 

@@ -19,21 +19,32 @@ th, td {
 <body>
 
 <h2>Historial:</h2>
-
+ {% block title %}Historial pedido{% endblock %}
+ {% block content %}
+ {% if numLineas <= 10 %}
 <table id="t01">
   <tr>
     <th>Fecha y hora - Temperatura (°C)</th> 
 
   </tr>
   <tr>
-  {% for linea in lineas %}
-    <td>
-		<span class="my-handle">:+:</span>
-		<input type="hidden" name="handles[]" value="{{ linea }}"/> {{ linea }}
-    </td>		
-  {% endfor %} 
-  </tr>
+  
+  
+	{% for temp in temps %}
+		<td>
+			<span class="my-handle">:+:</span>
+			<input type="hidden" name="handles[]" value="{{temp}}"/> {{temp}}
+		</td>		
+	{% endfor %} 
+	
+	</tr>
+  {% else %}
+	<p> Tocaria dejar link para descargar archivo...
+	<a href="/{{arch}}" class="button">Descargar archivo</a> 
+  {% endif %} 
+ {% endblock %}
+  
 </table>
-
+<a href="/" class="button">Volver</a> 
 </body>
 </html>
