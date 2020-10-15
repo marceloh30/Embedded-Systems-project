@@ -18,6 +18,7 @@ B = 3977        # B de NTC (Kelvin)
 
 GPIO.setmode(GPIO.BCM)
 
+#Pines por defecto de entrada y salida
 a_pin = 18
 b_pin = 23
 
@@ -25,8 +26,12 @@ b_pin = 23
 #Por lo tanto, obtendre tipo de lectura (Temp. o Lux)
 if(str(sys.argv[1])=="T"):
     strArch = "valoresT.txt"
+    #Mantengo pines
 elif(str(sys.argv[1])=="L"):
     strArch = "valoresL.txt"
+    #Redefino pines de entrada y salida para Lux
+    a_pin = 17
+    b_pin = 27
 else:
     print("Ocurrio un error interpretando argumento (tipo de archivo)")
 

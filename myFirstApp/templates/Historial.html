@@ -8,11 +8,11 @@ table, th, td {
 }
 th, td {
   padding: 15px;
-  text-align: left;
+  text-align: center;
 }
 #t01 {
   width: 100%;    
-  background-color: #f1f1c1;
+  background-color: #1a8cff;
 }
 </style>
 </head>
@@ -24,23 +24,31 @@ th, td {
  {% if numLineas <= 10 %}
 <table id="t01">
   <tr>
-    <th>Fecha y hora - Temperatura (°C)</th> 
-
+    <th>Fecha y hora</th> 
+	<th>Temperatura (°C)</th>
   </tr>
   <tr>
-  
-  
+	{% macro fecha(indice) -%}
+		{{fechas[indice]}}
+	{%- endmacro %}
+	{% set i=[]%}
 	{% for temp in temps %}
-		<td>
-			<span class="my-handle">:+:</span>
-			<input type="hidden" name="handles[]" value="{{temp}}"/> {{temp}}
-		</td>		
+		<tr>		
+			<td>
+				<span class="my-handle"></span>
+				<input type="hidden" name="handles[]" value="{{fecha(i|length)}}"/> {{fecha(i|length)}}
+			</td><td>			
+				<input type="hidden" name="handles[]" value="{{temp}}"/> {{temp}}				
+			</td>
+		</tr>		
+		{% if i.append(1) %}{% endif %} 
+		
 	{% endfor %} 
 	
 	</tr>
   {% else %}
-	<p> Tocaria dejar link para descargar archivo...
-	<a href="/{{arch}}" class="button">Descargar archivo</a> 
+	<p> Tocaria dejar link para descargar archivo... </p>
+	<a href="/{{arch}}" class="button" download="archivoHistorial.txt">Descargar archivo</a> 
   {% endif %} 
  {% endblock %}
   

@@ -148,7 +148,7 @@ def recTiempos():
 
 			#Busco valores segun tipo y fechas y obtengo temps y fechas que se encuentren entre f_desde y f_hasta
 			numLineas=0
-			[temps,fechas] = variablesWeb.buscarVals(str(tipo),f_desde,f_hasta)
+			[fechas,temps] = variablesWeb.buscarVals(str(tipo),f_desde,f_hasta)
 			if len(temps) == len(fechas):
 				numLineas = len(temps)
 			else:

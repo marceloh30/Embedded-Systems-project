@@ -171,7 +171,7 @@ def buscarVals(tipo,f_desde,f_hasta):
     return rets
 
 def arch_Historial(tipo,vals,fechas):
-    dirArch="/archivoHistorial.txt"
+    dirArch="/tmp/archivoHistorial.txt"
     try:
         with open(dirArch,"x") as cf:
             print(str(cf),"Archivo de historial creado")
@@ -190,6 +190,6 @@ def arch_Historial(tipo,vals,fechas):
             else:
                 strTipo = ["Valor de luz: "," Lux"]
             #Escribo: "Fecha: xx/xx/xxxx xx:xx:xx - Valor: xxx Lux/grados Celcius"
-            arch.write("Fecha: "+fecha+" - "+strTipo[0]+val+strTipo[1]+"\n")
+            arch.write("Fecha: "+str(fecha)+" - "+strTipo[0]+str(val)+strTipo[1]+"\n")
     #Una vez grabado el archivo, devuelvo la direccion donde se creo el archivo    
     return dirArch
