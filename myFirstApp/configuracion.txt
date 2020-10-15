@@ -1,3 +1,9 @@
-TL = 
-TH = 
-ts = 
+TL = 0
+TH = 200
+ts = 5
+destino = nadie
+tA = 10
+Rt = 10000
+Ct = 5.5e-07
+Rl = 10000
+Cl = 2.0000000000000002e-07

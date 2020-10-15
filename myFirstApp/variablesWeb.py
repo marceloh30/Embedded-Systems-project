@@ -11,7 +11,6 @@ valoresIngresados = valoresPredeterminados
 
 estadoAlarma = False
 tiempoEntreAlarmas = 0
-global posicionLectura 
 posicionLectura = 0
 archConf="configuracion.txt"
 
@@ -167,3 +166,27 @@ def buscarVals(tipo,f_desde,f_hasta):
                 rets[0].append(fecha_l)
                 rets[1].append(valNum)
     return rets
+
+def arch_Historial(tipo,vals,fechas):
+    dirArch="/archHistorial.txt"
+    try:
+        with open(dirArch,"x") as cf:
+            print(str(cf),"Archivo de historial creado")
+    except Exception as e:
+        print(e,": Archivo ya creado.. se procede a limpiarlo")
+        with open(dirArch,"w+") as wf:
+            #Vacio archivo ya existente
+            wf.truncate()
+            
+    #Una vez con archivo creado/limpiado, escribo datos:
+    with open(dirArch,"w+") as arch:
+        #Itero y voy escribiendo las lineas:
+        for val, fecha in zip(vals, fechas):
+            if tipo=="T":
+                strTipo = ["Temperatura: "," grados Celcius"]
+            else:
+                strTipo = ["Valor de luz: "," Lux"]
+            #Escribo: "Fecha: xx/xx/xxxx xx:xx:xx - Valor: xxx Lux/grados Celcius"
+            arch.write("Fecha: "+fecha+" - "+strTipo[0]+val+strTipo[1]+"\n")
+    #Una vez grabado el archivo, devuelvo la direccion donde se creo el archivo    
+    return dirArch
