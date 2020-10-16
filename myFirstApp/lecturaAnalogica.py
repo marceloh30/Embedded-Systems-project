@@ -21,15 +21,19 @@ GPIO.setmode(GPIO.BCM)
 #Pines por defecto de entrada y salida
 a_pin = 18
 b_pin = 23
-
+#Capacitancia por defecto (para evitar errores)
+C = 0
 ##Este codigo se ejecuta con "Python lecturaAnalogica.py <"T" o "L">"
 #Por lo tanto, obtendre tipo de lectura (Temp. o Lux)
+#Cambio tambien C y pines si es necesario
 if(str(sys.argv[1])=="T"):
     strArch = "valoresT.txt"
+    C = variablesWeb.valoresPredeterminados[6]*10**-9 #Ct
     #Mantengo pines
 elif(str(sys.argv[1])=="L"):
     strArch = "valoresL.txt"
     #Redefino pines de entrada y salida para Lux
+    C = variablesWeb.valoresPredeterminados[8]*10**-9 #Cl
     a_pin = 17
     b_pin = 27
 else:
@@ -72,25 +76,37 @@ except Exception as e:
         print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
 
 #Funcion para convertir la resistencia leida en Temp o Lux
-def convertVar(res,tipo):
-    valRet = 0.0
+def convertVar(lectura,tipo):
+
+    cocienteVcc=1.29/3.3
+    C = 1.0  
+    R = 1.0
+    valRet = -1.0 #Si se mantiene es un error inesperado
+
     if (tipo == "T"):
-        valRet = 1 / (abs(math.log(res/Ro_NTC))/B + 1/To_NTC )
+        #Realizo conversion segun Ct,Rt:
+        C = variablesWeb.valoresIngresados[6]*10**-9
+        R = lectura/(abs(math.log(1-cocienteVcc)*C)) - variablesWeb.valoresIngresados[5]
+        print("Valores- C:",str(C),"- R:",str(R))
+        valRet = 1 / (abs(math.log(R/Ro_NTC))/B + 1/To_NTC )
     elif (tipo == "L"):
-        valRet = Lo * math.pow(res/Ro_LDR,gama_LDR)
-    else:
-        valRet = -1 #Error inesperado
+        #Realizo conversion segun Cl,Rl:
+        C = variablesWeb.valoresIngresados[8]*10**-9
+        R = lectura/(abs(math.log(1-cocienteVcc)*C)) - variablesWeb.valoresIngresados[7]
+        valRet = Lo * math.pow(R/Ro_LDR,gama_LDR)
+
     return valRet
 
 while True:
-
+    
     #Obtengo de .txt de parametros configurables
-    coso = 1.29/3.3
-    R = analog_read()/(-math.log(1-coso)*550*10**-9)    
-    valNum = convertVar(R,str(sys.argv[1]))
-    valNum = math.trunc(valNum*10)/1 #Lo trunco a formato "T=x.x"
+    valNum = convertVar(analog_read(),str(sys.argv[1]))
+    valNum = math.trunc(valNum*10)/10 #Lo trunco a formato "T=x.x"
     #Creo string y escribo valor en strArch
     with open(strArch, "a") as f:
+        fecha = datetime.now()
+        
+        fecha.second() = math.trunc(fecha.second())
         strn=str(datetime.now())+","+str(valNum)+"\n"
         f.write(strn)
     time.sleep(variablesWeb.valoresIngresados[2]) #Espero ts entre medidas

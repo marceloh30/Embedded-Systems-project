@@ -2,10 +2,11 @@ import time
 from datetime import date
 from datetime import datetime
 from validate_email import validate_email
+import math
 
 temperatura = 0
 #TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
-valoresPredeterminados = [0, 200, 5, "nadie", 10, 10000, 550*10**-9, 10000, 200*10**-9]
+valoresPredeterminados = [0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 780.0, 10000.0, 780.0]
 #Comienzo con valores predeterminados
 valoresIngresados = valoresPredeterminados 
 
@@ -41,11 +42,11 @@ def guardadoVariables():
         pc.write("TH = "+str(valoresIngresados[1])+'\n')
         pc.write("ts = "+str(valoresIngresados[2])+'\n')
         pc.write("destino = "+str(valoresIngresados[3])+'\n')
-        pc.write("tA = "+str(valoresIngresados[4])+'\n')
-        pc.write("Rt = "+str(valoresIngresados[5])+'\n')
-        pc.write("Ct = "+str(valoresIngresados[6])+'\n')
-        pc.write("Rl = "+str(valoresIngresados[7])+'\n')
-        pc.write("Cl = "+str(valoresIngresados[8])+'\n')
+        pc.write("tA = "+str(valoresIngresados[4])+'\n') ##
+        pc.write("Rt = "+str(valoresIngresados[5])+'\n') ##En ohm
+        pc.write("Ct = "+str(valoresIngresados[6])+'\n') ##En nF
+        pc.write("Rl = "+str(valoresIngresados[7])+'\n') ##En ohm
+        pc.write("Cl = "+str(valoresIngresados[8])+'\n') ##En nF
 
 
 def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
@@ -162,6 +163,9 @@ def buscarVals(tipo,f_desde,f_hasta):
             hora=fh_array[1].split(":")
 
             #Creo datetime con los valores de linea
+            print("Antes:", str(hora[2]))
+            hora[2]=math.trunc(hora[2])
+            print("Luego de trunc: ",str(hora[2]))
             fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0)
             valNum=float(arr[1])
             #Verifico si estoy dentro de valores de tiemop
