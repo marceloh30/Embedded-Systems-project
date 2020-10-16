@@ -86,11 +86,11 @@ def action(deviceName, action):
 @app.route("/envioParametros" , methods = ["GET", "POST"])
 def tomaDatos():
 	if request.method == 'POST':
-		TL = request.form['TL']
-		TH = request.form['TH']
-		ts = request.form['ts']
+		TL = request.form.get('TL', type=float)
+		TH = request.form.get('TH', type=float)
+		ts = request.form.get('ts', type=float)
 		destino = request.form['destino']
-		tA = request.form['tA']
+		tA = request.form.get('tA', type=float )
 		#Valores de Rt y Ct para lecturaAnalogica de temp.
 		Rt = request.form.get('Rt', type=float)
 		Ct = request.form.get('Ct', type=float)

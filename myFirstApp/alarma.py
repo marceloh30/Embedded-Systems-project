@@ -5,8 +5,8 @@ def envioMail(destino):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login("obligatorioferreirahenandez@gmail.com", "Embebidos2020")
-    msg="Puto esta sonando la alarma"
-    to = destino + "@gmail.com"
+    msg="La alarma esta sonando"
+    to = destino
     server.sendmail("obligatorioferreirahernandez@gmail.com", to, msg)
     server.quit()
 try:

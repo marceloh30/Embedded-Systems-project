@@ -1,8 +1,8 @@
 import time
 from datetime import date
 from datetime import datetime
+from validate_email import validate_email
 
-global temperatura
 temperatura = 0
 #TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
 valoresPredeterminados = [0, 200, 5, "nadie", 10, 10000, 550*10**-9, 10000, 200*10**-9]
@@ -66,7 +66,7 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
             valoresIngresados[2] = ts
     else:
         aux = aux + "ts "
-    if verificacionVariable(destino, str) or len(destino) == 0:
+    if verificacionVariable(destino, str) and (validate_email(email_address=destino, check_regex=True, check_mx=True) or len(destino) == 0):
         if len(destino) != 0:
             valoresIngresados[3] = destino
     else:
