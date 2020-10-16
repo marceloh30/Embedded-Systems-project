@@ -2,7 +2,8 @@ import RPi.GPIO as GPIO
 import variablesWeb
 from datetime import date
 from datetime import datetime
-from flask import Flask, render_template, redirect,request, url_for, flash
+from flask import Flask, render_template, redirect,request, url_for, flash, send_file
+import subprocess
 app = Flask(__name__)
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -19,7 +20,6 @@ app.secret_key = 'obligatorio' #Nesesario para usar flash
 
 ##Ejecuto otros programas necesarios para el buen funcionamiento del sist:
 #Lectura analogica de temperatura:
-#exec("lecturaAnalogica.py","T")
 
 
 def accionesIndex():
@@ -180,11 +180,10 @@ def recTiempos():
 
 	return render_template('askHistorial.html')
 #Muestra del historial de las fechas pedidas
-@app.route("/historial/muestra")
-def muestraHist():
+@app.route('/download')
+def downloadFile():
+	return send_file("/tmp/archivoHistorial.txt", as_attachment=True)
 
-
-	return redirect(url_for('index'))
 
 if __name__ == "__main__":
    app.run(host='192.168.0.200', port=8080, debug=True)

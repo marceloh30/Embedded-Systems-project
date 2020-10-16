@@ -75,7 +75,7 @@ except Exception as e:
 def convertVar(res,tipo):
     valRet = 0.0
     if (tipo == "T"):
-        valRet = 1 / ( math.abs(math.log(res/Ro_NTC))/B + 1/To_NTC )
+        valRet = 1 / (abs(math.log(res/Ro_NTC))/B + 1/To_NTC )
     elif (tipo == "L"):
         valRet = Lo * math.pow(res/Ro_LDR,gama_LDR)
     else:
