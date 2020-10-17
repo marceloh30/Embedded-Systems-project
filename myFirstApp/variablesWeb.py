@@ -126,7 +126,7 @@ def leerValor(tipo, pos): #Devuelve largo de linea y valNum
             f.seek(pos)
             #Leo el ultimo valor
             linea = f.readline()
-            rets[1] = len(linea)-1 #Le resto uno para que no se pase
+            rets[1] = len(linea) #Le resto uno para que no se pase
             if rets[1] != 0:
                 rets[0]=linea.split(",")[1]	#Guardo valNum
             
