@@ -114,9 +114,12 @@ def envioAlarma():
     with open("EstadoDeAlarma.txt", "w") as eA:
 
         if estadoAlarma == 1:
-            eA.write("1")
+            if temperatura < valoresIngresados[0] or temperatura > valoresIngresados[1] or temperatura == -1:
+                eA.write("1 - 1")
+            else:
+                eA.write("1 - 0")
         else:
-            eA.write("0")
+            eA.write("0 - 0")
 
 
 #Funcion para leer valores num(Temp o Lux) de sus respectivos txt

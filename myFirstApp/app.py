@@ -43,7 +43,7 @@ def accionesIndex():
 def index():
 
 	templateData = accionesIndex()
-	
+	variablesWeb.envioAlarma()
 	return render_template('index.html', **templateData)
 
 #Ruta para acciones con Alarma y Led
@@ -63,7 +63,7 @@ def action(deviceName, action):
 	
 	#Realizo la actualizacion de datos para index:
 	templateData = accionesIndex()
-
+	variablesWeb.envioAlarma()
 	return render_template('index.html', **templateData)
 
 #Ruta de envio y recepcion de parametros

@@ -58,12 +58,17 @@ def carga():
     GPIO.output(a_pin, True)
     t1 = time.time()
     count = 0 
-    while not GPIO.input(b_pin):
+    while not GPIO.input(b_pin) and count < 500000:
         count = count + 1
         pass
     t2 = time.time()
     print(count)
-    return (t2 - t1)
+    descarga()
+    if count >= 500000:
+        ret = -1
+    else:
+        ret = t2 - t1
+    return ret
 
 def analog_read():
     descarga()
@@ -84,7 +89,7 @@ except Exception as e:
 #Funcion para convertir la resistencia leida en Temp o Lux
 def convertVar(lectura,tipo):
 
-    cocienteVcc=0.38 #hicimos medidas ;) -anterior: 1.20/3.3 
+    cocienteVcc=1.38/3.3 #hicimos medidas ;) -anterior: 1.20/3.3 
     valRet = -1.0 #Si se mantiene es un error inesperado
 
     if (tipo == "T"):
@@ -108,8 +113,12 @@ while True:
     for i in range(10):
         lectura = lectura + analog_read()
     lectura = lectura/10
-    valNum = convertVar(lectura,str(sys.argv[1]))
-    valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
+    print(lectura)
+    if lectura == -1:
+        valNum = -1
+    else:
+        valNum = convertVar(lectura,str(sys.argv[1]))
+        valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
     #Creo string y escribo valor en strArch
     with open(strArch, "a") as f:
         fecha = datetime.now()
