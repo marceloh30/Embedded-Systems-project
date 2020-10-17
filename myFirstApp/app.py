@@ -23,12 +23,11 @@ app.secret_key = 'obligatorio' #Nesesario para usar flash
 
 
 def accionesIndex():
-    # Read Sensors Status
-    [valorT,len_linea]  = variablesWeb.leerValor("T",variablesWeb.posicionLectura)
-    if (valorT) != 0:
+    # Leo valores de temperatura actuales
+    valorT  = variablesWeb.leerValor("T")
+
+    if (valorT) is not None:
         variablesWeb.temperatura = valorT
-        #Sumo los bytes para la nueva posicion de lectura
-        variablesWeb.posicionLectura = variablesWeb.posicionLectura + len_linea
 
     ledRedSts = GPIO.input(ledRed)
     templateData = {
@@ -42,22 +41,7 @@ def accionesIndex():
 
 @app.route("/")
 def index():
-	''' Pruebo hacerlo funcion para usarlo tambien en ruta /<devicename>/<action>
-	# Read Sensors Status
-	[valorT,len_linea]  = leerValor("T",variablesWeb.posicionLectura)
-	if len(valorT) != 0:
-		variablesWeb.temp = valorT
-	#Sumo los bytes para la nueva posicion de lectura	
-	variablesWeb.posicionLectura = variablesWeb.posicionLectura + len_linea
 
-	ledRedSts = GPIO.input(ledRed)
-	templateData = {
-              'title' : 'GPIO output Status!',
-              'ledRed'  : ledRedSts,
-              'valorT'  : variablesWeb.temperatura,
-			  'estadoAlarma' : variablesWeb.estadoAlarma
-        }
-	'''
 	templateData = accionesIndex()
 	
 	return render_template('index.html', **templateData)
@@ -114,7 +98,6 @@ def str_conNums(str_in):
 	return any(char.isdigit() for char in str_in)
 
 ##Ruta de recepcion de intervalos de tiempo para Temps-Luxs
-
 @app.route("/historial" , methods = ["GET", "POST"])
 def recTiempos():	
 	templateData= {
@@ -185,5 +168,10 @@ def downloadFile():
 	return send_file("/tmp/archivoHistorial.txt", as_attachment=True)
 
 
+##"Main":
+
+#Verifico configuracion.txt:
+variablesWeb.ver_archConf()
+#Corro el servidor web Flask:
 if __name__ == "__main__":
    app.run(host='192.168.0.200', port=8080, debug=True)

@@ -8,12 +8,12 @@ import sys #importo sys para obtener parametros de la ejecucion.
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
 
 #Parametros de LDR y NTC:
-Lo=390          # Lux
+Lo=390.0          # Lux
 Ro_LDR=2.57**3  # Ro(Lo)- en Ohms
 gama_LDR=0.8    # parametro caracteristico de LDR (Adimensionado)
-To_NTC=25+273       # Kelvin
-Ro_NTC=10**3    # Ro(To)- en Ohms
-B = 3977        # B de NTC (Kelvin)
+To_NTC=25.0+273.0   # Kelvin
+Ro_NTC=10.0**4    # Ro(To)- en Ohms
+B = 3977.0        # B de NTC (Kelvin)
 
 GPIO.setmode(GPIO.BCM)
 
@@ -84,14 +84,16 @@ except Exception as e:
 #Funcion para convertir la resistencia leida en Temp o Lux
 def convertVar(lectura,tipo):
 
-    cocienteVcc=1.20/3.3
+    cocienteVcc=0.38 #hicimos medidas ;) -anterior: 1.20/3.3 
     valRet = -1.0 #Si se mantiene es un error inesperado
 
     if (tipo == "T"):
         #Realizo conversion segun Ct,Rt:
-        R = lectura/(abs(math.log(1-cocienteVcc)*C))
-        print("Valores- C:",str(C),"- R:",str(R))
+        R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
+        print("Resistencia obtenida:",str(R))
         valRet = 1 / (abs(math.log(R/Ro_NTC))/B + 1/To_NTC )
+        valRet -= 273
+        print("T: ",valRet)
     elif (tipo == "L"):
         #Realizo conversion segun Cl,Rl:
         R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
@@ -101,22 +103,32 @@ def convertVar(lectura,tipo):
 
 while True:
     
-    #Obtengo de .txt de parametros configurables
+    #Realizo 10 lecturas y obtengo promedio
     lectura = 0
     for i in range(10):
         lectura = lectura + analog_read()
-    valNum = convertVar(lectura/10,str(sys.argv[1]))
-    valNum = math.trunc(valNum*10)/10 #Lo trunco a formato "T=x.x"
+    lectura = lectura/10
+    valNum = convertVar(lectura,str(sys.argv[1]))
+    valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
     #Creo string y escribo valor en strArch
     with open(strArch, "a") as f:
         fecha = datetime.now()
-        
+        #Redondeo segundos segun microseg y luego dejo en 0 los microsegundos
+        fecha = fecha.replace(second=fecha.second+round(fecha.microsecond/1000000),microsecond=0)
         #fecha.second() = math.trunc(fecha.second())
-        strn=str(datetime.now())+","+str(valNum)+"\n"
+        strn=str(fecha)+","+str(valNum)+"\n"
         f.write(strn)
+    #Obtengo de .txt de parametros configurables
     with open("configuracion.txt","r") as confi:
         linea = confi.readlines()
-        C = float(linea[6].split("= ")[1])*10**-9 #Ct
-        R0 = float(linea[5].split("= ")[1])       #Rt
+
+        if(sys.argv[1]=="T"):
+            C = float(linea[6].split("= ")[1])*10**-9 #Ct
+            R0 = float(linea[5].split("= ")[1])       #Rt
+            
+        else: ##Solo puede ser T o L
+            C = float(linea[8].split("= ")[1])*10**-9 #Cl
+            R0 = float(linea[7].split("= ")[1])       #Rl
+            
         time.sleep(float(linea[2].split("= ")[1])) #Espero ts entre medidas
     

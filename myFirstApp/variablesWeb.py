@@ -16,17 +16,24 @@ posicionLectura = 0
 archConf="configuracion.txt"
 
 ##Pruebo abrir archConf, si no existe lo creo.
-try:    
-    with open(archConf,"r") as arch:
-        print("Archivo",archConf,"existente.")
-        #Leo los valores del archivo:
+def ver_archConf():
+    try:    
+        with open(archConf,"r") as arch:
+            print("Archivo",archConf,"existente.")
+            #Leo los valores del archivo:
+            print("Valores actuales:")
+            for linea in arch.readlines():
+                print(linea)
 
-
-except Exception as e:
-    #No existe archivo. Lo creo:
-    with open(archConf, 'x') as f:
-        print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
-
+    except Exception as e:
+        print(e.args,": Excepcion capturada")
+        #Si es una excepcion debido a que archivo no existe lo creo:
+        if(e.args[0]==2):
+            with open(archConf, 'x') as f:
+                print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
+                #Hago el primer guardado de valores predeterminados
+                guardadoVariables()
+    
 
 
 def verificacionVariable(variable, type): #Verifico si la variable es del tipo que espero 
@@ -113,30 +120,31 @@ def envioAlarma():
 
 
 #Funcion para leer valores num(Temp o Lux) de sus respectivos txt
-def leerValor(tipo, pos): #Devuelve largo de linea y valNum
-    print(pos,": pos!!")
-    rets=[0,0]
+def leerValor(tipo): #Devuelve largo de linea y valNum
+    ret=None
     if (tipo == "T"):
         strArch = "valoresT.txt"
     else:
         strArch = "valoresL.txt"
     try:
         with open(strArch, "r") as f:
-            #Lo llevo a la posicion del ultimo ingreso
-            f.seek(pos)
-            #Leo el ultimo valor
-            linea = f.readline()
-            rets[1] = len(linea) #Le resto uno para que no se pase
-            if rets[1] != 0:
-                rets[0]=linea.split(",")[1]	#Guardo valNum
+            ult_linea=[]
+            #Leo lineas y tomo la ultima
+            for linea in f.readlines():
+                ult_linea=linea
+                pass
+            
+            if len(ult_linea) != 0:
+                ret=ult_linea.split(",")[1]	#Guardo valNum
             
     except Exception as e:
-        print(e,": excepcion capturada.")
-        if(e==IOError):
+        print(e.args,": excepcion capturada.")
+        #Verifico si excepcion es por archivo no creado y en ese caso lo creo.
+        if(e.args[0]==2):
             with open(strArch, "x") as f:
                 print(e, "\nArchivo no existe. Creo el archivo", strArch, ".")
     
-    return rets
+    return ret
 
 
 
@@ -148,6 +156,7 @@ def buscarVals(tipo,f_desde,f_hasta):
     else:
         strArch = "valoresL.txt"
 
+    #supongo archivos ya creados:
     with open(strArch, "r") as arch:
         #Defino listas a devolver
         rets=[[],[]] #rets[0]=fechas[],[1]=vals[]
@@ -163,10 +172,7 @@ def buscarVals(tipo,f_desde,f_hasta):
             hora=fh_array[1].split(":")
 
             #Creo datetime con los valores de linea
-            print("Antes:", str(hora[2]))
-            hora[2]=math.trunc(hora[2])
-            print("Luego de trunc: ",str(hora[2]))
-            fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0)
+            fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0)       
             valNum=float(arr[1])
             #Verifico si estoy dentro de valores de tiemop
             if (f_desde <= fecha_l and f_hasta >= fecha_l):
@@ -180,6 +186,7 @@ def arch_Historial(tipo,vals,fechas):
         with open(dirArch,"x") as cf:
             print(str(cf),"Archivo de historial creado")
     except Exception as e:
+        #Como es la unica excepcion posible, realizo lo siguiente:
         print(e,": Archivo ya creado.. se procede a limpiarlo")
         with open(dirArch,"w+") as wf:
             #Vacio archivo ya existente
