@@ -114,7 +114,7 @@ def envioAlarma():
     with open("EstadoDeAlarma.txt", "w") as eA:
 
         if estadoAlarma == 1:
-            if temperatura < valoresIngresados[0] or temperatura > valoresIngresados[1] or temperatura == -1:
+            if float(temperatura) < float(valoresIngresados[0]) or float(temperatura) > float(valoresIngresados[1]) or float(temperatura) == -1:
                 eA.write("1 - 1")
             else:
                 eA.write("1 - 0")
