@@ -21,23 +21,23 @@ app.secret_key = 'obligatorio' #Nesesario para usar flash
 ##Ejecuto otros programas necesarios para el buen funcionamiento del sist:
 #Lectura analogica de temperatura:
 
-
 def accionesIndex():
-    # Leo valores de temperatura actuales
-    valorT  = variablesWeb.leerValor("T")
-	
-    if (valorT) is not None:
-        variablesWeb.temperatura = valorT
+	#Leo valores de temperatura actuales 
+	valorT = variablesWeb.leerValor("T")
+	valorL = variablesWeb.leerValor("L")
 
-    ledRedSts = GPIO.input(ledRed)
-    templateData = {
-        'title' : 'GPIO output Status!',
-        'ledRed'  : ledRedSts,
-        'valorT'  : variablesWeb.temperatura,
-        'estadoAlarma' : variablesWeb.estadoAlarma
-    }
-    return templateData
 
+	if valorT is not None:
+		variablesWeb.temperatura = valorT
+
+	ledRedSts = GPIO.input(ledRed)
+	templateData = {
+		'title' : 'GPIO output Status',
+		'ledRed' : ledRedSts,
+		'valorT' : variablesWeb.temperatura,
+		'estadoAlarma' : variablesWeb.estadoAlarma
+	}
+	return templateData
 
 @app.route("/")
 def index():
@@ -85,7 +85,7 @@ def tomaDatos():
 		#Verifico si concuerda con los valores maximos y minimos y en ese caso guardo las variables recibidas
 		aux = variablesWeb.cambioValores(TL, TH, ts, destino, tA, Rt, Ct, Rl, Cl)
 		if len(aux) > 0:
-			flash('Se ingresaron de forma incorrecta los parametros: ' + aux)
+			flash('Se ingresaron de forma correcta los parametros: ' + aux)
 			print(aux)	
 			
 		return redirect(url_for('index'))
@@ -115,7 +115,7 @@ def recTiempos():
 		fecha2 = str(request.form['fecha2'])
 
 		#Verifico si recibi valores numericos
-		if (str_conNums(t1) and str_conNums(t2) and str_conNums(fecha2) and str_conNums(fecha1)):
+		if (str_conNums(t1) and str_conNums(t2) and str_conNums(fecha2) and str_conNums(fecha1) and (tipo is "T" or tipo is "L")):
 
 			##Formato -> t: '18:06', fecha: '2020-09-01'
 			#Obtengo hora y fecha de cada valor obtenido por pagina web
@@ -161,7 +161,7 @@ def recTiempos():
 			flash("Error al recibir fechas: valores no numericos!")
 		return render_template('Historial.html', **templateData)
 
-	return render_template('askHistorial.html')
+	return render_template('askHistTemp.html')
 #Muestra del historial de las fechas pedidas
 @app.route('/download')
 def downloadFile():

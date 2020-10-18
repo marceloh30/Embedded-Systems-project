@@ -25,19 +25,18 @@ while True:
         
 
         if estado == "1 - 1":
-            if tiempoAlarmas == 0:
-                tiempoAlarmas = time.time()
-                print("Enviando aviso...")
-                envioMail(destino)
-            elif (time.time() - tiempoAlarmas) >= float(tA)*60:
-                tiempoAlarmas = time.time()
-                print("Enviando aviso...")
-                envioMail(destino)
+            tiempoAlarmas = time.time()
+            print("Enviando aviso...")
+            envioMail(destino)
+            time.sleep(float(tA)*60)#Duermo el programa hasta que tenga que sonar nuevamente la alarma
         elif estado == "1 - 0":
             print("Se encendio alarma.")
+            time.sleep(30)#Duermo el programa 
         else:
+            tiempoAlarmas == 0
+            time.sleep(30)#Duermo el programa
             pass
             
-            
-    except:
+         #Cambiar y agregar un sleep tambien agregar para margen un sleep es decir ejecuta duerme ejecuta duerme   
+    except SMTPException:
         print("Error en el envio de mail")

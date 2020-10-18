@@ -6,7 +6,7 @@ import math
 
 temperatura = 0
 #TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
-valoresPredeterminados = [0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 780.0, 10000.0, 780.0]
+valoresPredeterminados = [0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 550.0, 10000.0, 550.0]
 #Comienzo con valores predeterminados
 valoresIngresados = valoresPredeterminados 
 
@@ -33,14 +33,6 @@ def ver_archConf():
                 print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
                 #Hago el primer guardado de valores predeterminados
                 guardadoVariables()
-    
-
-
-def verificacionVariable(variable, type): #Verifico si la variable es del tipo que espero 
-    if not isinstance(variable, type):
-        return False #Si es falso tomo prederterminado o el anterior dependiendo del caso
-    else:
-        return True
 
 def guardadoVariables():
     #guardo variables en archivo de configuracion
@@ -55,55 +47,60 @@ def guardadoVariables():
         pc.write("Rl = "+str(valoresIngresados[7])+'\n') ##En ohm
         pc.write("Cl = "+str(valoresIngresados[8])+'\n') ##En nF
 
+def verificacionVariable(variable, type): #Verifico si la variable es del tipo que espero 
+    if not isinstance(variable, type):
+        return False #Si es falso tomo prederterminado o el anterior dependiendo del caso
+    else:
+        return True
 
 def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
     aux = "" #Variable para devolver los parametros erroneos y mostrarlos en pagina web
     if (verificacionVariable(TL, float) and TL < TH) or TL is None:
         if TL is not None:
             valoresIngresados[0] = TL
+            aux = "TL "
         #Si es None, osea no se ingreso nada no lo tomo como error y me quedo con el estado anterior
-    else:
-        aux = "TL "
+        
     if (verificacionVariable(TH, float) and TH > TL) or TH is None:
         if TH is not None:
             valoresIngresados[1] = TH
-    else:
-        aux = aux + "TH "
-    if (verificacionVariable(ts, float) and ts >= 5) or ts is None:
+            aux = aux + "TH "
+        
+    if (verificacionVariable(TL, float) and ts >= 5) or ts is None:
         if ts is not None:
             valoresIngresados[2] = ts
-    else:
-        aux = aux + "ts "
-    if verificacionVariable(destino, str) and (validate_email(email_address=destino, check_regex=True, check_mx=True) or len(destino) == 0):
+            aux = aux + "ts "
+        
+    if (validate_email(email_address=destino, check_regex=True, check_mx=True) or len(destino) == 0):
         if len(destino) != 0:
             valoresIngresados[3] = destino
-    else:
-        aux = aux + "destino "
-    if (verificacionVariable(tA, float) and tA > 0) or tA is None:
+            aux = aux + "destino "
+
+    if (verificacionVariable(TL, float) and tA > 0) or tA is None:
         if tA is not None:
             valoresIngresados[4] = tA
-    else:
-        aux = aux + "tA"
-    if (verificacionVariable(Rt, float) and Rt > 0) or Rt is None:
+            aux = aux + "tA "
+        
+    if (verificacionVariable(TL, float) and Rt > 0) or Rt is None:
         if Rt is not None:
             valoresIngresados[5] = Rt
-    else:
-        aux = aux + "Rt"
-    if (verificacionVariable(Ct, float) and Ct > 0) or Ct is None:
+            aux = aux + "Rt "
+
+    if (verificacionVariable(TL, float) and Ct > 0) or Ct is None:
         if Ct is not None:
             valoresIngresados[6] = Ct
-    else:
-        aux = aux + "Ct"
-    if (verificacionVariable(Rl, float) and Rl > 0) or Rl is None:
+            aux = aux + "Ct "
+
+    if (verificacionVariable(TL, float) and Rl > 0) or Rl is None:
         if Rl is not None:
             valoresIngresados[7] = Rl
-    else:
-        aux = aux + "Rl"        
-    if (verificacionVariable(Cl, float) and Cl > 0) or Cl is None:
+            aux = aux + "Rl "
+                
+    if (verificacionVariable(TL, float) and Cl > 0) or Cl is None:
         if Cl is not None:
             valoresIngresados[8] = Cl
-    else:
-        aux = aux + "Cl"    
+            aux = aux + "Cl "
+            
 
     #Guardo variables:
     guardadoVariables()
@@ -127,26 +124,29 @@ def leerValor(tipo): #Devuelve largo de linea y valNum
     ret=None
     if (tipo == "T"):
         strArch = "valoresT.txt"
-    else:
+    elif (tipo == "L"):
         strArch = "valoresL.txt"
-    try:
-        with open(strArch, "r") as f:
-            ult_linea=[]
-            #Leo lineas y tomo la ultima
-            for linea in f.readlines():
-                ult_linea=linea
-                pass
-            
-            if len(ult_linea) != 0:
-                ret=ult_linea.split(",")[1]	#Guardo valNum
-            
-    except Exception as e:
-        print(e.args,": excepcion capturada.")
-        #Verifico si excepcion es por archivo no creado y en ese caso lo creo.
-        if(e.args[0]==2):
-            with open(strArch, "x") as f:
-                print(e, "\nArchivo no existe. Creo el archivo", strArch, ".")
-    
+    else:
+        strArch = None
+    if strArch is not None:
+        try:
+            with open(strArch, "r") as f:
+                ult_linea=[]
+                #Leo lineas y tomo la ultima
+                for linea in f.readlines():
+                    ult_linea=linea
+                    pass
+                
+                if len(ult_linea) != 0:
+                    ret=ult_linea.split(",")[1]	#Guardo valNum
+                
+        except Exception as e:
+            print(e.args,": excepcion capturada.")
+            #Verifico si excepcion es por archivo no creado y en ese caso lo creo.
+            if(e.args[0]==2):
+                with open(strArch, "x") as f:
+                    print(e, "\nArchivo no existe. Creo el archivo", strArch, ".")
+        
     return ret
 
 
@@ -154,37 +154,41 @@ def leerValor(tipo): #Devuelve largo de linea y valNum
 ##Funcion de busqueda de fechas: Retorna Fechas,valorNum(temp o lux)
 def buscarVals(tipo,f_desde,f_hasta):
 
-    if (tipo=="T"):
+    if (tipo == "T"):
         strArch = "valoresT.txt"
-    else:
+    elif (tipo == "L"):
         strArch = "valoresL.txt"
+    else:
+        strArch = None
 
+    #Defino listas a devolver
+    rets=[[],[]] #rets[0]=fechas[],[1]=vals[]
+    if strArch is not None:
     #supongo archivos ya creados:
-    with open(strArch, "r") as arch:
-        #Defino listas a devolver
-        rets=[[],[]] #rets[0]=fechas[],[1]=vals[]
+        with open(strArch, "r") as arch:
+            
 
-        for linea in arch.readlines():
-            #separo fecha y valor num. de linea:
-            arr=linea.split(",")
-            #Separo dia y horario de la fecha de arr
-            fh_array=arr[0].split(" ")
-            #Separo dia,mes,anio de la fecha
-            dte=fh_array[0].split("-")
-            #Separo hora, min y seg del horario
-            hora=fh_array[1].split(":")
+            for linea in arch.readlines():
+                #separo fecha y valor num. de linea:
+                arr=linea.split(",")
+                #Separo dia y horario de la fecha de arr
+                fh_array=arr[0].split(" ")
+                #Separo dia,mes,anio de la fecha
+                dte=fh_array[0].split("-")
+                #Separo hora, min y seg del horario
+                hora=fh_array[1].split(":")
 
-            #Creo datetime con los valores de linea
-            fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0) 
-            if(arr[1].startswith("None")):
-                valNum=None
-            else:  
-                valNum=float(arr[1])
-            #Verifico si estoy dentro de valores de tiempo
-            if (f_desde <= fecha_l and f_hasta >= fecha_l):
-                rets[0].append(fecha_l)
-                rets[1].append(valNum)
-    return rets
+                #Creo datetime con los valores de linea
+                fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0) 
+                if(arr[1].startswith("None")):
+                    valNum=None
+                else:  
+                    valNum=float(arr[1])
+                #Verifico si estoy dentro de valores de tiempo
+                if (f_desde <= fecha_l and f_hasta >= fecha_l):
+                    rets[0].append(fecha_l)
+                    rets[1].append(valNum)
+        return rets
 
 def arch_Historial(tipo,vals,fechas):
     dirArch="/tmp/archivoHistorial.txt"
