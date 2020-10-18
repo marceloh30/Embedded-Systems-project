@@ -66,7 +66,7 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
             valoresIngresados[1] = TH
             aux = aux + "TH "
         
-    if (verificacionVariable(TL, float) and ts >= 5) or ts is None:
+    if (verificacionVariable(ts, float) and ts >= 5) or ts is None:
         if ts is not None:
             valoresIngresados[2] = ts
             aux = aux + "ts "
@@ -76,27 +76,27 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
             valoresIngresados[3] = destino
             aux = aux + "destino "
 
-    if (verificacionVariable(TL, float) and tA > 0) or tA is None:
+    if (verificacionVariable(tA, float) and tA > 0) or tA is None:
         if tA is not None:
             valoresIngresados[4] = tA
             aux = aux + "tA "
         
-    if (verificacionVariable(TL, float) and Rt > 0) or Rt is None:
+    if (verificacionVariable(Rt, float) and Rt > 0) or Rt is None:
         if Rt is not None:
             valoresIngresados[5] = Rt
             aux = aux + "Rt "
 
-    if (verificacionVariable(TL, float) and Ct > 0) or Ct is None:
+    if (verificacionVariable(Ct, float) and Ct > 0) or Ct is None:
         if Ct is not None:
             valoresIngresados[6] = Ct
             aux = aux + "Ct "
 
-    if (verificacionVariable(TL, float) and Rl > 0) or Rl is None:
+    if (verificacionVariable(Rl, float) and Rl > 0) or Rl is None:
         if Rl is not None:
             valoresIngresados[7] = Rl
             aux = aux + "Rl "
                 
-    if (verificacionVariable(TL, float) and Cl > 0) or Cl is None:
+    if (verificacionVariable(Cl, float) and Cl > 0) or Cl is None:
         if Cl is not None:
             valoresIngresados[8] = Cl
             aux = aux + "Cl "
