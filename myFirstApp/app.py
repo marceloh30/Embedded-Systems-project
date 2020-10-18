@@ -25,7 +25,7 @@ app.secret_key = 'obligatorio' #Nesesario para usar flash
 def accionesIndex():
     # Leo valores de temperatura actuales
     valorT  = variablesWeb.leerValor("T")
-
+	
     if (valorT) is not None:
         variablesWeb.temperatura = valorT
 

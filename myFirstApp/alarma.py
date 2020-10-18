@@ -33,7 +33,11 @@ while True:
                 tiempoAlarmas = time.time()
                 print("Enviando aviso...")
                 envioMail(destino)
+        elif estado == "1 - 0":
+            print("Se encendio alarma.")
         else:
             pass
+            
+            
     except:
         print("Error en el envio de mail")

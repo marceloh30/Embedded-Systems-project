@@ -175,9 +175,12 @@ def buscarVals(tipo,f_desde,f_hasta):
             hora=fh_array[1].split(":")
 
             #Creo datetime con los valores de linea
-            fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0)       
-            valNum=float(arr[1])
-            #Verifico si estoy dentro de valores de tiemop
+            fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0) 
+            if(arr[1].startswith("None")):
+                valNum=None
+            else:  
+                valNum=float(arr[1])
+            #Verifico si estoy dentro de valores de tiempo
             if (f_desde <= fecha_l and f_hasta >= fecha_l):
                 rets[0].append(fecha_l)
                 rets[1].append(valNum)

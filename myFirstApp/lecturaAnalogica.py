@@ -91,18 +91,20 @@ def convertVar(lectura,tipo):
 
     cocienteVcc=1.38/3.3 #hicimos medidas ;) -anterior: 1.20/3.3 
     valRet = -1.0 #Si se mantiene es un error inesperado
-
-    if (tipo == "T"):
-        #Realizo conversion segun Ct,Rt:
-        R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
-        print("Resistencia obtenida:",str(R))
-        valRet = 1 / (abs(math.log(R/Ro_NTC))/B + 1/To_NTC )
-        valRet -= 273
-        print("T: ",valRet)
-    elif (tipo == "L"):
-        #Realizo conversion segun Cl,Rl:
-        R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
-        valRet = Lo * math.pow(R/Ro_LDR,gama_LDR)
+    try:
+        if (tipo == "T"):
+            #Realizo conversion segun Ct,Rt:
+            R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
+            print("Resistencia obtenida:",str(R))
+            valRet = 1 / (abs(math.log(R/Ro_NTC))/B + 1/To_NTC )
+            valRet -= 273
+            print("T: ",valRet)
+        elif (tipo == "L"):
+            #Realizo conversion segun Cl,Rl:
+            R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
+            valRet = Lo * math.pow(R/Ro_LDR,gama_LDR)
+    except Exception as e:
+        print("Al convertir lectura en valor de temp/lux, ocurrio excepcion:",e)
 
     return valRet
 
@@ -110,20 +112,30 @@ while True:
     
     #Realizo 10 lecturas y obtengo promedio
     lectura = 0
-    for i in range(10):
-        lectura = lectura + analog_read()
-    lectura = lectura/10
+    ult_lectura = 1
+    i = 0
+    #Verifico ademas que no haya ocurrido algun error en lectura (Configuracion del circuito erronea, etc)
+    while i<10 and ult_lectura>0:
+        ult_lectura = analog_read()
+        lectura = lectura + ult_lectura
+        i+=1
+    if (ult_lectura<0):
+        lectura= -1
+    else:
+        lectura = lectura/10
+    #for i in range(10):
+    #    lectura = lectura + analog_read()
     print(lectura)
-    if lectura == -1:
-        valNum = -1
+    if lectura <= -1:
+        valNum = None
     else:
         valNum = convertVar(lectura,str(sys.argv[1]))
         valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
     #Creo string y escribo valor en strArch
     with open(strArch, "a") as f:
         fecha = datetime.now()
-        #Redondeo segundos segun microseg y luego dejo en 0 los microsegundos
-        fecha = fecha.replace(second=fecha.second+round(fecha.microsecond/1000000),microsecond=0)
+        #Dejo en 0 los microsegundos
+        fecha = fecha.replace(microsecond=0)
         #fecha.second() = math.trunc(fecha.second())
         strn=str(fecha)+","+str(valNum)+"\n"
         f.write(strn)
