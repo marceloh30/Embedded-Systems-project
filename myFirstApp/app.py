@@ -9,14 +9,14 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 #define actuators GPIOs
 pin_led = 17
-#initialize GPIO status variables
+#initialize estados a mostrar
 estado_led = 0
 valorT = 0
-# Define led pins as output
-GPIO.setup(pin_led, GPIO.OUT)    
-# turn leds OFF 
+# Defino como output el pin del led y lo dejo en off
+GPIO.setup(pin_led, GPIO.OUT)     
 GPIO.output(pin_led, GPIO.LOW)
-app.secret_key = 'obligatorio' #Nesesario para usar flash
+
+app.secret_key = 'obligatorio' #Necesario para usar flash
 
 ##Ejecuto otros programas necesarios para el buen funcionamiento del sist:
 #Lectura analogica de temperatura:
@@ -135,41 +135,47 @@ def recTiempos():
 			hm2=t2.split(':')
 			dma2=fecha2.split('-')
 
-			#args de datetime: Anio, Mes, Dia, Hora, Min, Seg, Miliseg
-			f_desde=datetime(int(dma1[0]),int(dma1[1]),int(dma1[2]),int(hm1[0]),int(hm1[1]),0,0) ##seg y ms los tomo en 0
-			f_hasta=datetime(int(dma2[0]),int(dma2[1]),int(dma2[2]),int(hm2[0]),int(hm2[1]),0,0) ##seg y ms los tomo en 0
-			print("Busco desde:",f_desde,", Hasta:",f_hasta)
+			yr_actual=datetime.now().year
 
-			#Busco valores segun tipo y fechas y obtengo temps y fechas que se encuentren entre f_desde y f_hasta
-			numLineas=0
-			[fechas,vals] = variablesWeb.buscarVals(str(tipo),f_desde,f_hasta)
-			if len(vals) == len(fechas):
-				numLineas = len(vals)
+			if (int(dma1[0])>yr_actual or int(dma2[0])>yr_actual):
+				str_flash="Error al recibir años: no se predice futuro, estamos en el año " + str(2020)
+				flash(str_flash)
 			else:
-				print(len(vals),"diferente a ",len(fechas))
-				numLineas = min(map(len,[vals,fechas]))
-			
-			if (len(vals) != 0 and len(fechas) != 0):
-				if(len(vals) <= 10): #Si tengo menos de 10 valores, los envio a la pagina 
-					print(vals,fechas)
-					templateData= {
-						"numLineas":numLineas,
-						"vals":vals,
-						"fechas":fechas,
-						"arch": None,
-						"tipoVal": tipoVal
-					}
-				else: #Tengo mas de 10 valores, muestro arch. descargable	
-					print("Mas de 10 valores, crear archivo pa descargar")
-					#Obtengo dirArch y creo archivo con arch_Historial(tipo,vals,fechas)
-					dirArch = variablesWeb.arch_Historial(str(tipo),vals,fechas)
-					templateData = {
-						"numLineas":numLineas,
-						"temps":vals,
-						"fechas":fechas,
-						"arch": dirArch,
-						"tipoVal": tipoVal
-					}
+				#args de datetime: Anio, Mes, Dia, Hora, Min, Seg, Miliseg
+				f_desde=datetime(int(dma1[0]),int(dma1[1]),int(dma1[2]),int(hm1[0]),int(hm1[1]),0,0) ##seg y ms los tomo en 0
+				f_hasta=datetime(int(dma2[0]),int(dma2[1]),int(dma2[2]),int(hm2[0]),int(hm2[1]),0,0) ##seg y ms los tomo en 0
+				print("Busco desde:",f_desde,", Hasta:",f_hasta)
+
+				#Busco valores segun tipo y fechas y obtengo temps y fechas que se encuentren entre f_desde y f_hasta
+				numLineas=0
+				[fechas,vals] = variablesWeb.buscarVals(str(tipo),f_desde,f_hasta)
+				if len(vals) == len(fechas):
+					numLineas = len(vals)
+				else:
+					print(len(vals),"diferente a ",len(fechas))
+					numLineas = min(map(len,[vals,fechas]))
+				
+				if (len(vals) != 0 and len(fechas) != 0):
+					if(len(vals) <= 10): #Si tengo menos de 10 valores, los envio a la pagina 
+						print(vals,fechas)
+						templateData= {
+							"numLineas":numLineas,
+							"vals":vals,
+							"fechas":fechas,
+							"arch": None,
+							"tipoVal": tipoVal
+						}
+					else: #Tengo mas de 10 valores, muestro arch. descargable	
+						print("Mas de 10 valores, crear archivo pa descargar")
+						#Obtengo dirArch y creo archivo con arch_Historial(tipo,vals,fechas)
+						dirArch = variablesWeb.arch_Historial(str(tipo),vals,fechas)
+						templateData = {
+							"numLineas":numLineas,
+							"temps":vals,
+							"fechas":fechas,
+							"arch": dirArch,
+							"tipoVal": tipoVal
+						}
 		else:
 			flash("Error al recibir fechas: valores no numericos!")
 		return render_template('Historial.html', **templateData)
