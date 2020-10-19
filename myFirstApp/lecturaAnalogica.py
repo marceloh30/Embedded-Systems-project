@@ -8,12 +8,12 @@ import sys #importo sys para obtener parametros de la ejecucion.
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
 
 #Parametros de LDR y NTC:
-Lo=390.0          # Lux
-Ro_LDR=2.57**3  # Ro(Lo)- en Ohms
-gama_LDR=0.8    # parametro caracteristico de LDR (Adimensionado)
+Lo=110.0            # Lux
+Ro_LDR=12300        # Ro(Lo)- en Ohms
+gama_LDR=0.8        # parametro caracteristico de LDR (Adimensionado)
 To_NTC=25.0+273.0   # Kelvin
-Ro_NTC=10.0**4    # Ro(To)- en Ohms
-B = 3977.0        # B de NTC (Kelvin)
+Ro_NTC=10.0**4      # Ro(To)- en Ohms
+B = 3977.0          # B de NTC (Kelvin)
 
 GPIO.setmode(GPIO.BCM)
 
@@ -40,8 +40,8 @@ elif(str(sys.argv[1])=="L"):
         linea = confi.readlines()
         C = float(linea[8].split("= ")[1])*10**-9 #Cl
         R0 = float(linea[7].split("= ")[1])       #Rl
-    a_pin = 18
-    b_pin = 23
+    a_pin = 16
+    b_pin = 20
 else:
     print("Ocurrio un error interpretando argumento (tipo de archivo)")
 
@@ -100,9 +100,11 @@ def convertVar(lectura,tipo):
             valRet -= 273
             print("T: ",valRet)
         elif (tipo == "L"):
-            #Realizo conversion segun Cl,Rl:
+            #Realizo conversion segun Cl,Rl: (VERSION EXPERIMENTAL)
             R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
-            valRet = Lo * math.pow(R/Ro_LDR,gama_LDR)
+            print("R:",R)
+            valRet = Lo * math.pow(R/Ro_LDR,-1/gama_LDR)
+            print("Lux:",valRet)
     except Exception as e:
         print("Al convertir lectura en valor de temp/lux, ocurrio excepcion:",e)
 
