@@ -38,5 +38,5 @@ while True:
             pass
             
          #Cambiar y agregar un sleep tambien agregar para margen un sleep es decir ejecuta duerme ejecuta duerme   
-    except SMTPException:
+    except smtplib.SMTPException:
         print("Error en el envio de mail")
