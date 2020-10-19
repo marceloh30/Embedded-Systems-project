@@ -29,12 +29,15 @@ def accionesIndex():
 
 	if valorT is not None:
 		variablesWeb.temperatura = valorT
+	#if valorL is not None:
+	#	variablesWeb.lux = valorL
 
 	ledRedSts = GPIO.input(ledRed)
 	templateData = {
-		'title' : 'GPIO output Status',
+		
 		'ledRed' : ledRedSts,
 		'valorT' : variablesWeb.temperatura,
+		#'valorL' :	valorL
 		'estadoAlarma' : variablesWeb.estadoAlarma
 	}
 	return templateData
@@ -99,12 +102,14 @@ def str_conNums(str_in):
 
 ##Ruta de recepcion de intervalos de tiempo para Temps-Luxs
 @app.route("/historial" , methods = ["GET", "POST"])
-def recTiempos():	
+def recTiempos():
+	tipoVal = "Temperatura/Iluminancia"	
 	templateData= {
 		"numLineas":0,
 		"temps":[],
 		"fechas":[],
-		"arch": None	
+		"arch": None,
+		"tipoVal": tipoVal
 	}
 	if request.method == 'POST':
 		#Recibo valores desde pagina web
@@ -113,6 +118,12 @@ def recTiempos():
 		fecha1 = str(request.form['fecha1'])
 		t2 = str(request.form['t2'])
 		fecha2 = str(request.form['fecha2'])
+		print(tipo)
+		#Tomo tipoVal segun tipo:
+		if (tipo=="T"):
+			tipoVal="Temperatura (°C)"
+		elif (tipo=="L"):
+			tipoVal="Iluminancia (Lux)"
 
 		#Verifico si recibi valores numericos
 		if (str_conNums(t1) and str_conNums(t2) and str_conNums(fecha2) and str_conNums(fecha1) and (tipo is "T" or tipo is "L")):
@@ -131,31 +142,33 @@ def recTiempos():
 
 			#Busco valores segun tipo y fechas y obtengo temps y fechas que se encuentren entre f_desde y f_hasta
 			numLineas=0
-			[fechas,temps] = variablesWeb.buscarVals(str(tipo),f_desde,f_hasta)
-			if len(temps) == len(fechas):
-				numLineas = len(temps)
+			[fechas,vals] = variablesWeb.buscarVals(str(tipo),f_desde,f_hasta)
+			if len(vals) == len(fechas):
+				numLineas = len(vals)
 			else:
-				print(len(temps),"diferente a ",len(fechas))
-				numLineas = min(map(len,[temps,fechas]))
+				print(len(vals),"diferente a ",len(fechas))
+				numLineas = min(map(len,[vals,fechas]))
 			
-			if (len(temps) != 0 and len(fechas) != 0):
-				if(len(temps) <= 10): #Si tengo menos de 10 valores, los envio a la pagina 
-					print(temps,fechas)
+			if (len(vals) != 0 and len(fechas) != 0):
+				if(len(vals) <= 10): #Si tengo menos de 10 valores, los envio a la pagina 
+					print(vals,fechas)
 					templateData= {
 						"numLineas":numLineas,
-						"temps":temps,
+						"vals":vals,
 						"fechas":fechas,
-						"arch": None	
+						"arch": None,
+						"tipoVal": tipoVal
 					}
 				else: #Tengo mas de 10 valores, muestro arch. descargable	
 					print("Mas de 10 valores, crear archivo pa descargar")
 					#Obtengo dirArch y creo archivo con arch_Historial(tipo,vals,fechas)
-					dirArch = variablesWeb.arch_Historial(str(tipo),temps,fechas)
+					dirArch = variablesWeb.arch_Historial(str(tipo),vals,fechas)
 					templateData = {
 						"numLineas":numLineas,
-						"temps":temps,
+						"temps":vals,
 						"fechas":fechas,
-						"arch": dirArch	
+						"arch": dirArch,
+						"tipoVal": tipoVal
 					}
 		else:
 			flash("Error al recibir fechas: valores no numericos!")

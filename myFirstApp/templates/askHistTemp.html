@@ -19,14 +19,17 @@
 		</div>
     
     <div class="container-fluid text-center p-3 my-3">
-      <p>Ingrese dos intervalos de tiempo para obtener el registro de temperaturas durante esas fechas!</p>
-    
-    {% block title %}Historia de temperaturas{% endblock %}
+      <h3>Ingrese dos intervalos de tiempo para obtener el registro</h3>
+      <h3>de temperaturas/iluminancia durante esas fechas!</h3>
+
     {% block content %}
     <form action="" method="post">
       <br><br>
-      <label for="tipo">Historial de (T o L): </label>
-      <input type="string" id="tipo" name="tipo" />
+      
+      <label for="tipo">Historial de: </label>
+      <br>
+      <input type="radio" name="tipo" id="T" value="T"> Temperatura </input><br>
+      <input type="radio" name="tipo" id="L" value="L"> Iluminancia </input><br>
       <br><br>
       <label for="fecha1">Desde el día: </label>
       <input type="date" id="fecha1" name="fecha1"/>

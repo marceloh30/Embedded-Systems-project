@@ -29,20 +29,20 @@ th, td {
 <table id="t01">
   <tr>
     <th>Fecha y hora</th> 
-	<th>Temperatura (°C)</th>
+	<th>{{tipoVal}}</th>
   </tr>
   <tr>
 	{% macro fecha(indice) -%}
 		{{fechas[indice]}}
 	{%- endmacro %}
 	{% set i=[]%}
-	{% for temp in temps %}
+	{% for val in vals %}
 		<tr>		
 			<td>
 				<span class="my-handle"></span>
 				<input type="hidden" name="handles[]" value="{{fecha(i|length)}}"/> {{fecha(i|length)}}
 			</td><td>			
-				<input type="hidden" name="handles[]" value="{{temp}}"/> {{temp}}				
+				<input type="hidden" name="handles[]" value="{{val}}"/> {{val}}				
 			</td>
 		</tr>		
 		{% if i.append(1) %}{% endif %} 
@@ -64,7 +64,7 @@ th, td {
 
   {% else %}
 	<div class="container-fluid p-3 my-3 text-center">
-		<p> El historial de temperaturas es muy grande, por favor descargue el archivo </p>
+		<h4> El historial es muy grande, por favor descargue el archivo </h4>
 		<a class="btn btn-primary" href="/download" type="button" download="archivoHistorial.txt">Descargar archivo</a> 
 	</div>
   {% endif %} 
