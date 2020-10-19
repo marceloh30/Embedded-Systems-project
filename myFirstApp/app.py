@@ -35,7 +35,7 @@ def accionesIndex():
 	estado_led = GPIO.input(pin_led)
 	templateData = {
 		
-		'ledRed' : estado_led,
+		'led' : estado_led,
 		'valorT' : variablesWeb.temperatura,
 		#'valorL' :	valorL
 		'estadoAlarma' : variablesWeb.estadoAlarma
@@ -52,12 +52,12 @@ def index():
 #Ruta para acciones con Alarma y Led
 @app.route("/<deviceName>/<action>")
 def action(deviceName, action):
-	if deviceName == 'pin_led':
-		actuator = pin_led
+	if deviceName == 'led':
+		#actuador = pin_led
 		if action == "on":
-			GPIO.output(actuator, GPIO.HIGH)
+			GPIO.output(pin_led, GPIO.HIGH)
 		else:
-			GPIO.output(actuator, GPIO.LOW)
+			GPIO.output(pin_led, GPIO.LOW)
 	if deviceName == 'alarma':
 		if action == "on":
 			variablesWeb.estadoAlarma = True

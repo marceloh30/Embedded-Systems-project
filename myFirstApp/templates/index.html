@@ -21,8 +21,12 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-4 text-center">
-					<h3>RED LED</h3>
-					<p>{{ ledRed }}</p>
+					<h3>Estado de LED</h3>
+					{% if led==1 %}
+						<p>Encendido</p>
+					{% else %}
+						<p>Apagado</p>
+					{% endif %}
 				</div>
 				<div class="col-sm-4 text-center">
 					<h3>Temperatura</h3>
@@ -50,9 +54,9 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-3 text-center">
-					<h3>RED LED Ctrl</h3>
-					<p><a class="btn btn-primary" href="/ledRed/on" role="button">TURN ON</a></p>
-					<p><a class="btn btn-primary" href="/ledRed/off" role="button">TURN OFF</a></p>
+					<h3>CONTROL DE LED:</h3>
+					<p><a class="btn btn-primary" href="/led/on" role="button">Encender</a></p>
+					<p><a class="btn btn-primary" href="/led/off" role="button">Apagar</a></p>
 				</div>
 				<div class="col-sm-3 text-center">
 					<h3>PARAMETROS CONFIGURABLES:</h3>
