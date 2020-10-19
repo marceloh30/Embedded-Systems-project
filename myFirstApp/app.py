@@ -8,14 +8,14 @@ app = Flask(__name__)
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 #define actuators GPIOs
-ledRed = 17
+pin_led = 17
 #initialize GPIO status variables
-ledRedSts = 0
+estado_led = 0
 valorT = 0
 # Define led pins as output
-GPIO.setup(ledRed, GPIO.OUT)    
+GPIO.setup(pin_led, GPIO.OUT)    
 # turn leds OFF 
-GPIO.output(ledRed, GPIO.LOW)
+GPIO.output(pin_led, GPIO.LOW)
 app.secret_key = 'obligatorio' #Nesesario para usar flash
 
 ##Ejecuto otros programas necesarios para el buen funcionamiento del sist:
@@ -32,10 +32,10 @@ def accionesIndex():
 	#if valorL is not None:
 	#	variablesWeb.lux = valorL
 
-	ledRedSts = GPIO.input(ledRed)
+	estado_led = GPIO.input(pin_led)
 	templateData = {
 		
-		'ledRed' : ledRedSts,
+		'ledRed' : estado_led,
 		'valorT' : variablesWeb.temperatura,
 		#'valorL' :	valorL
 		'estadoAlarma' : variablesWeb.estadoAlarma
@@ -52,8 +52,8 @@ def index():
 #Ruta para acciones con Alarma y Led
 @app.route("/<deviceName>/<action>")
 def action(deviceName, action):
-	if deviceName == 'ledRed':
-		actuator = ledRed
+	if deviceName == 'pin_led':
+		actuator = pin_led
 		if action == "on":
 			GPIO.output(actuator, GPIO.HIGH)
 		else:
