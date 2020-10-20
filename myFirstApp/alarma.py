@@ -32,7 +32,7 @@ while True:
             print("Se encendio alarma.")
             time.sleep(30)#Duermo el programa 
         else:
-            tiempoAlarmas == 0
+            tiempoAlarmas = 0
             time.sleep(30)#Duermo el programa
             pass
             
