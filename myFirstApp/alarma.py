@@ -35,8 +35,7 @@ while True:
             tiempoAlarmas = 0
             time.sleep(30)#Duermo el programa
             pass
-            
-         #Cambiar y agregar un sleep tambien agregar para margen un sleep es decir ejecuta duerme ejecuta duerme   
+               
          
     except Exception as e:
         print("Error en el envio de mail:",e)
