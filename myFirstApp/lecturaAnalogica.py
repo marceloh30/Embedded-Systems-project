@@ -46,13 +46,13 @@ else:
     print("Ocurrio un error interpretando argumento (tipo de archivo)")
 
 
-def descarga():
+def descarga():#Descargo el capacitor
     GPIO.setup(a_pin,GPIO.IN)
     GPIO.setup(b_pin,GPIO.OUT)
     GPIO.output(b_pin, False)
     time.sleep(0.1)
     
-def carga():
+def carga():#Cargo el capacitor
     GPIO.setup(b_pin, GPIO.IN)
     GPIO.setup(a_pin, GPIO.OUT)
     GPIO.output(a_pin, True)
@@ -89,7 +89,7 @@ except Exception as e:
 #Funcion para convertir la resistencia leida en Temp o Lux
 def convertVar(lectura,tipo):
 
-    cocienteVcc=1.38/3.3 #hicimos medidas ;) -anterior: 1.20/3.3 
+    cocienteVcc=1.38/3.3 #hicimos medidas 
     valRet = None #Si se mantiene es un error inesperado
     try:
         if (tipo == "T"):

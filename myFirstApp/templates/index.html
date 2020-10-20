@@ -34,7 +34,11 @@
 				</div>
 				<div class="col-sm-4 text-center">
 					<h3>Estado Alarma</h3>
-					<p>{{ estadoAlarma }}</p>
+					{% if estadoAlarma==true %}
+						<p>Encendido</p>
+					{% else %}
+						<p>Apagado</p>
+					{% endif %}
 				</div>
 			</div>
 		</div>

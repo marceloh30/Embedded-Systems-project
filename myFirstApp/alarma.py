@@ -45,8 +45,7 @@ while True:
         if (e.args[0]==2):
             with open("EstadoDeAlarma.txt", 'x') as f:
                 print("Archivo no existe. Creo el archivo EstadoDeAlarma.txt.")
-            with open("EstadoDeAlarma.txt", "w") as fw:
-                fw.write("0 - 0")
+
 
 
             
