@@ -108,10 +108,11 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
     return aux
 
 def envioAlarma():
+
     with open("EstadoDeAlarma.txt", "w") as eA:
 
-        if estadoAlarma == 1:
-            if float(temperatura) < float(valoresIngresados[0]) or float(temperatura) > float(valoresIngresados[1]) or float(temperatura) == -1:
+        if estadoAlarma == True:
+            if temperatura is None or float(temperatura) < float(valoresIngresados[0]) or float(temperatura) > float(valoresIngresados[1]):
                 eA.write("1 - 1")
             else:
                 eA.write("1 - 0")
@@ -139,6 +140,8 @@ def leerValor(tipo): #Devuelve largo de linea y valNum
                 
                 if len(ult_linea) != 0:
                     ret=ult_linea.split(",")[1]	#Guardo valNum
+                    if(ret=="None\n"):
+                        ret=None
                 
         except Exception as e:
             print(e.args,": excepcion capturada.")

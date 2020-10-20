@@ -25,10 +25,10 @@ def accionesIndex():
 	#Leo valores de temperatura actuales 
 	valorT = variablesWeb.leerValor("T")
 	valorL = variablesWeb.leerValor("L")
-
-
-	if valorT is not None:
-		variablesWeb.temperatura = valorT
+	
+	#if valorT is not None: 
+	# Dejo que sea None para poder activar alarma
+	variablesWeb.temperatura = valorT
 	#if valorL is not None:
 	#	variablesWeb.lux = valorL
 
@@ -44,9 +44,8 @@ def accionesIndex():
 
 @app.route("/")
 def index():
-
-	templateData = accionesIndex()
 	variablesWeb.envioAlarma()
+	templateData = accionesIndex()
 	return render_template('index.html', **templateData)
 
 #Ruta para acciones con Alarma y Led
@@ -88,7 +87,7 @@ def tomaDatos():
 		#Verifico si concuerda con los valores maximos y minimos y en ese caso guardo las variables recibidas
 		aux = variablesWeb.cambioValores(TL, TH, ts, destino, tA, Rt, Ct, Rl, Cl)
 		if len(aux) > 0:
-			flash('Se ingresaron de forma correcta los parametros: ' + aux)
+			flash('Se ingresaron de forma correcta el/los parametro/s: ' + aux)
 			print(aux)	
 			
 		return redirect(url_for('index'))
@@ -151,7 +150,7 @@ def recTiempos():
 				[fechas,vals] = variablesWeb.buscarVals(str(tipo),f_desde,f_hasta)
 				if len(vals) == len(fechas):
 					numLineas = len(vals)
-				else:
+				else:	#No deberia de ocurrir, pero si ocurre, con esto evito errores:
 					print(len(vals),"diferente a ",len(fechas))
 					numLineas = min(map(len,[vals,fechas]))
 				

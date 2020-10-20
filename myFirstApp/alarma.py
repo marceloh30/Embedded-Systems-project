@@ -14,16 +14,15 @@ def envioMail(destino):
 tiempoAlarmas = 0.0
 while True:
     try:
-        estadoAlarma = open("EstadoDeAlarma.txt", "r")
-        estado = estadoAlarma.read()
-        estadoAlarma.close()
-        configuracion = open("configuracion.txt", "r")
-        confi = configuracion.readlines()
-        tA = confi[4].split("= ")[1]
-        destino = confi[3].split("= ")[1]
-        configuracion.close()
-        
 
+        with open("EstadoDeAlarma.txt", "r") as estadoAlarma:  
+            estado = estadoAlarma.read()
+
+        with open("configuracion.txt", "r") as configuracion: 
+            confi = configuracion.readlines()
+            tA = confi[4].split("= ")[1]
+            destino = confi[3].split("= ")[1]
+        
         if estado == "1 - 1":
             tiempoAlarmas = time.time()
             print("Enviando aviso...")
@@ -38,5 +37,17 @@ while True:
             pass
             
          #Cambiar y agregar un sleep tambien agregar para margen un sleep es decir ejecuta duerme ejecuta duerme   
-    except smtplib.SMTPException:
-        print("Error en el envio de mail")
+         
+    except Exception as e:
+        print("Error en el envio de mail:",e)
+        if e==smtplib.SMTPException:
+            print("Error de correo")            
+        #Si es una excepcion debido a que archivo no existe lo creo:
+        if (e.args[0]==2):
+            with open("EstadoDeAlarma.txt", 'x') as f:
+                print("Archivo no existe. Creo el archivo EstadoDeAlarma.txt.")
+            with open("EstadoDeAlarma.txt", "w") as fw:
+                fw.write("0 - 0")
+
+
+            
