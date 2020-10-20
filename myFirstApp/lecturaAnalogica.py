@@ -92,25 +92,22 @@ def convertVar(lectura,tipo):
     cocienteVcc=1.38/3.3 #hicimos medidas 
     valRet = None #Si se mantiene es un error inesperado
     try:
-        if (tipo == "T"):
-            #Realizo conversion segun Ct,Rt:
-            R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
-            print("Resistencia obtenida:",str(R))
-            if R > 0:
+        R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
+        print("Resistencia obtenida:",str(R))
+        if (R > 0):
+            if (tipo == "T"):
+                #Realizo conversion segun Ct,Rt:               
                 valRet = 1 / (abs(math.log(R/Ro_NTC))/B + 1/To_NTC )
                 valRet -= 273
                 print("T: ",valRet)
-            else:
-                print("Resistencia Negativa o 0.")
-        elif (tipo == "L"):
-            #Realizo conversion segun Cl,Rl: (VERSION EXPERIMENTAL)
-            R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
-            print("R:",R)
-            if R > 0:
+                
+            elif (tipo == "L"):
+                #Realizo conversion segun Cl,Rl: (VERSION EXPERIMENTAL)
                 valRet = Lo * math.pow(R/Ro_LDR,-1/gama_LDR)
                 print("Lux:",valRet)
-            else:
-                print("Resistencia Negativa o 0.")
+                
+        else:
+            print("Resistencia Negativa o 0.")
     except Exception as e:
         print("Al convertir lectura en valor de temp/lux, ocurrio excepcion:",e)
 
