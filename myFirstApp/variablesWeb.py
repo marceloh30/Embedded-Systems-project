@@ -191,7 +191,7 @@ def buscarVals(tipo,f_desde,f_hasta):
                 if (f_desde <= fecha_l and f_hasta >= fecha_l):
                     rets[0].append(fecha_l)
                     rets[1].append(valNum)
-        return rets
+    return rets
 
 def arch_Historial(tipo,vals,fechas):
     dirArch="/tmp/archivoHistorial.txt"
