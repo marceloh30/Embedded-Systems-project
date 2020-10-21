@@ -46,13 +46,13 @@ else:
     print("Ocurrio un error interpretando argumento (tipo de archivo)")
 
 
-def descarga():#Descargo el capacitor
+def descarga():
     GPIO.setup(a_pin,GPIO.IN)
     GPIO.setup(b_pin,GPIO.OUT)
     GPIO.output(b_pin, False)
     time.sleep(0.1)
     
-def carga():#Cargo el capacitor
+def carga():
     GPIO.setup(b_pin, GPIO.IN)
     GPIO.setup(a_pin, GPIO.OUT)
     GPIO.output(a_pin, True)
@@ -89,7 +89,7 @@ except Exception as e:
 #Funcion para convertir la resistencia leida en Temp o Lux
 def convertVar(lectura,tipo):
 
-    cocienteVcc=1.38/3.3 #hicimos medidas 
+    cocienteVcc=1.38/3.3 #hicimos medidas ;) -anterior: 1.20/3.3 
     valRet = None #Si se mantiene es un error inesperado
     try:
         R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
@@ -112,9 +112,23 @@ def convertVar(lectura,tipo):
         print("Al convertir lectura en valor de temp/lux, ocurrio excepcion:",e)
 
     return valRet
-
+ts = 5 # ts
 while True:
+    #Obtengo valores de C y R de configuracion.txt
+    with open("configuracion.txt","r") as confi:
+        linea = confi.readlines()
+        #Dependiendo de si el arch es de T o L, tomo R y C
+        if(sys.argv[1]=="T"):
+            C = float(linea[6].split("= ")[1])*10**-9 #Ct
+            R0 = float(linea[5].split("= ")[1])       #Rt
+            
+        else: ##Solo puede ser T o L
+            C = float(linea[8].split("= ")[1])*10**-9 #Cl
+            R0 = float(linea[7].split("= ")[1])       #Rl
+        #Obtengo ts
+        ts = float(linea[2].split("= ")[1])   
     
+        
     #Realizo 10 lecturas y obtengo promedio
     lectura = 0
     ult_lectura = 0
@@ -126,12 +140,10 @@ while True:
         i+=1
     if ult_lectura is None:
         lectura = None
-        print("sape")
     else:
         lectura = lectura/10
-    #for i in range(10):
-    #    lectura = lectura + analog_read()
-    print(lectura)
+
+    print("Lectura: ", lectura)
     if lectura is not None:
         valNum = convertVar(lectura,str(sys.argv[1]))
         if valNum is not None:
@@ -144,17 +156,7 @@ while True:
         #fecha.second() = math.trunc(fecha.second())
         strn=str(fecha)+","+str(valNum)+"\n"
         f.write(strn)
-    #Obtengo de .txt de parametros configurables
-    with open("configuracion.txt","r") as confi:
-        linea = confi.readlines()
 
-        if(sys.argv[1]=="T"):
-            C = float(linea[6].split("= ")[1])*10**-9 #Ct
-            R0 = float(linea[5].split("= ")[1])       #Rt
-            
-        else: ##Solo puede ser T o L
-            C = float(linea[8].split("= ")[1])*10**-9 #Cl
-            R0 = float(linea[7].split("= ")[1])       #Rl
-            
-        time.sleep(float(linea[2].split("= ")[1])) #Espero ts entre medidas
+
+    time.sleep(ts) #Espero ts entre medidas
     

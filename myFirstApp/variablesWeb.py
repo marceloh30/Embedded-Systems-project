@@ -55,16 +55,27 @@ def verificacionVariable(variable, type): #Verifico si la variable es del tipo q
 
 def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
     aux = "" #Variable para devolver los parametros erroneos y mostrarlos en pagina web
-    if (verificacionVariable(TL, float) and TL < TH) or TL is None:
+    if (verificacionVariable(TL, float)):
         if TL is not None:
-            valoresIngresados[0] = TL
-            aux = "TL "
+            if TH is None:
+                val = valoresIngresados[1]
+            else:
+                val = TH
+            if TL < val:
+                valoresIngresados[0] = TL
+                aux = "TL "
+            
         #Si es None, osea no se ingreso nada no lo tomo como error y me quedo con el estado anterior
         
-    if (verificacionVariable(TH, float) and TH > TL) or TH is None:
+    if (verificacionVariable(TH, float)):
         if TH is not None:
-            valoresIngresados[1] = TH
-            aux = aux + "TH "
+            if TL is None:
+                val = valoresIngresados[0]
+            else:
+                val = TL
+            if TH > val:
+                valoresIngresados[1] = TH
+                aux = aux + "TH "
         
     if (verificacionVariable(ts, float) and ts >= 5) or ts is None:
         if ts is not None:
