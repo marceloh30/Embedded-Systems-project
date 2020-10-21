@@ -7,7 +7,7 @@ GPIO.setmode(GPIO.BCM)
 a_pin = 18
 b_pin = 23
 
-C = 120*10**-9
+C = 780*10**-9
 
 
 def descarga():
@@ -32,28 +32,29 @@ def analog_read():
     return carga()
    
    
-R0 = 10000
+R0 = 9930
 R = 0
-k =  0.5 # k = 1 / (1 - V(t)/Vcc) donde V(t)=cte*Vcc con 0<cte<1 
+k =  1.2/3.3 # k = (1 - V(t)/Vcc) donde V(t)=cte*Vcc con 0<cte<1 
 
 while True:    
 
-    while (abs(R-R0) > 100):        
-        R = analog_read()/(-math.log(k)*C)
+    while (abs(R-R0) > 20):        
+        R = analog_read()/(abs(math.log(1-k))*C)
+
         print(R)
-        if( R-R0 > 100):
-            k = k - 0.01   
-            R = analog_read()/(-math.log(k)*C)
+        if( R-R0 > 20):
+            k = k + 0.01   
+            R = analog_read()/(abs(math.log(1-k))*C)
             print("k-=0.01: " +str(R))            
-        elif(R-R0 < -100):           
-            k = k + 0.01
-            R = analog_read()/(-math.log(k)*C)
+        elif(R-R0 < -20):           
+            k = k - 0.01
+            R = analog_read()/(abs(math.log(1-k))*C)
             print("k+=0.01: " +str(R))                    
     print("Finalmente obtuve: " +str(R)+", k="+str(k))
-    
+    print("Calibrado... ahora a probarle")
     while True:
-        print("Calibrado... ahora a probarle")
-        Rnuevo = analog_read()/(-math.log(k)*C)
+        
+        Rnuevo = analog_read()/(abs(math.log(1-k))*C)
         print(Rnuevo)
     
     time.sleep(1)

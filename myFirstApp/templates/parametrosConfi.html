@@ -1,19 +1,48 @@
 <!DOCTYPE html>
 
-<head>
-    <title>Parametros Configurables</title>
-    <link rel="stylesheet" href='../static/style.css'/>
- </head>
+    <head>
+        <title>Parametros Configurables</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">	
+    </head>
 
- {% block title %}Parametros Configurables{% endblock %}
- {% block content %}
-     <form action="" method="post">
-         <label for="TL">Temperatura Baja: </label>
-         <input type="int" id="TL" name="TL" /><br>
-         <label for="TH">Temperatura Alta: </label>
-         <input type="int" id="TH" name="TH" /><br>
-         <label for="ts">Tiempo entre medidas: </label>
-         <input type="float" id="ts" name="ts" /><br>
-         <input type="submit" id="send-signup" name="signup" value="Registrar" />
-     </form>
- {% endblock %}
+    <body>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>   
+
+
+        <div class="jumbotron text-center">
+			<h1>Parametros Configurables</h1>
+		</div>
+
+        <div class="container-fluid text-center p-3 my-3">
+            {% block content %}
+                <form action="" method="post">
+                    <label for="TL">Temperatura Baja: </label>
+                    <input type="float" id="TL" name="TL" /><br><br>
+                    <label for="TH">Temperatura Alta: </label>
+                    <input type="float" id="TH" name="TH" /><br><br>
+                    <label for="ts">Tiempo entre medidas(segundos): </label>
+                    <input type="float" id="ts" name="ts" /><br><br>
+                    <label for="destino">Destinatario de la alarma (mail): </label>
+                    <input type="string" id="destino" name="destino" /><br><br>
+                    <label for="tA">Tiempo Alarma(minutos): </label>
+                    <input type="float" id="tA" name="tA" /><br><br>
+                    <label for="Rt">Valor de Resistencia del termistor: </label>
+                    <input type="float" id="Rt" name="Rt" /><br><br>
+                    <label for="Ct">Valor de Capacitancia del termistor(en nano faradios): </label>
+                    <input type="float" id="Ct" name="Ct" /><br><br>
+                    <label for="Rl">Valor de Resistencia de LDR: </label>
+                    <input type="float" id="Rl" name="Rl" /><br><br>
+                    <label for="Cl">Valor de Capacitancia de LDR(en nano faradios): </label>
+                    <input type="float" id="Cl" name="Cl" /><br><br>
+        
+                    <input type="submit" id="send-signup" name="signup" value="Registrar" />
+                </form>
+            {% endblock %}
+        </div>
+        
+        
+    </body>
+    

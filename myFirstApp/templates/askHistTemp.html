@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+
+  <head>
+      <title>Pedido de Historial</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">	
+  </head>
+
+  <body>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  
+
+    <div class="jumbotron text-center">
+			<h1>Pedido de Historial</h1>
+		</div>
+    
+    <div class="container-fluid text-center p-3 my-3">
+      <h3>Ingrese dos intervalos de tiempo para obtener el registro</h3>
+      <h3>de temperaturas/iluminancia durante esas fechas!</h3>
+
+    {% block content %}
+    <form action="" method="post">
+      <br><br>
+      
+      <label for="tipo">Historial de: </label>
+      <br>
+      <input type="radio" name="tipo" id="T" value="T" checked> Temperatura </input><br>
+      <input type="radio" name="tipo" id="L" value="L"> Iluminancia </input><br>
+      <br><br>
+      <label for="fecha1">Desde el día: </label>
+      <input type="date" id="fecha1" name="fecha1"/>
+      <br><br>
+      <label for="t1">Desde la hora: </label>
+      <input type="time" id="t1" name="t1"/>
+      <br><br>
+      <label for="fecha2">Hasta el día: </label>
+      <input type="date" id="fecha2" name="fecha2"/>
+      <br><br>
+      <label for="t2">Hasta la hora: </label>
+      <input type="time" id="t2" name="t2"/>
+      <br><br>
+      <input type="submit" id="send-signup" name="signup" value="Pedir" />
+    </form>
+    
+      <br>
+    
+    {% endblock %}
+    </div>
+    
+  </body>
+
+</html>
