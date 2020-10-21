@@ -39,6 +39,7 @@ while True:
          
     except Exception as e:
         print("Error en el envio de mail:",e)
+        time.sleep(30)
         if e==smtplib.SMTPException:
             print("Error de correo")            
         #Si es una excepcion debido a que archivo no existe lo creo:
