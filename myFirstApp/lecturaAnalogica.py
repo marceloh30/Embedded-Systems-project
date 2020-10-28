@@ -96,8 +96,12 @@ def convertVar(lectura,tipo):
         print("Resistencia obtenida:",str(R))
         if (R > 0):
             if (tipo == "T"):
-                #Realizo conversion segun Ct,Rt:               
-                valRet = 1 / (abs(math.log(R/Ro_NTC))/B + 1/To_NTC )
+                #Realizo conversion segun Ct,Rt:    
+                ParteA =  math.log(R/Ro_NTC)/B
+                print("ParteA: ", ParteA)
+                ParteB =  1/To_NTC         
+                print("ParteB: ", ParteB)
+                valRet = 1 / (ParteA + ParteB )
                 valRet -= 273
                 print("T: ",valRet)
                 
