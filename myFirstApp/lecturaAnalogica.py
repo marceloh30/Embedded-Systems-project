@@ -10,7 +10,7 @@ import sys #importo sys para obtener parametros de la ejecucion.
 #Parametros de LDR y NTC:
 Lo=110.0            # Lux
 Ro_LDR=12300        # Ro(Lo)- en Ohms
-gama_LDR=0.8        # parametro caracteristico de LDR (Adimensionado)
+gama_LDR=0.7        # parametro caracteristico de LDR (Adimensionado)
 To_NTC=25.0+273.0   # Kelvin
 Ro_NTC=10.0**4      # Ro(To)- en Ohms
 B = 3977.0          # B de NTC (Kelvin)

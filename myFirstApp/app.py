@@ -37,7 +37,7 @@ def accionesIndex():
 		
 		'led' : estado_led,
 		'valorT' : variablesWeb.temperatura,
-		#'valorL' :	valorL
+		'valorL' :	valorL,
 		'estadoAlarma' : variablesWeb.estadoAlarma
 	}
 	return templateData
@@ -85,6 +85,7 @@ def tomaDatos():
 		Cl = request.form.get('Cl', type=float)
 
 		#Verifico si concuerda con los valores maximos y minimos y en ese caso guardo las variables recibidas
+		
 		aux = variablesWeb.cambioValores(TL, TH, ts, destino, tA, Rt, Ct, Rl, Cl)
 		if len(aux) > 0:
 			flash('Se ingresaron de forma correcta el/los parametro/s: ' + aux)
