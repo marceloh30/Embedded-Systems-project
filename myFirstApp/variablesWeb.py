@@ -2,6 +2,7 @@ import time
 from datetime import date
 from datetime import datetime
 from validate_email import validate_email
+from modelosDB import configuraciones, db
 import math
 
 temperatura = 0
@@ -35,17 +36,14 @@ def ver_archConf():
                 guardadoVariables()
 
 def guardadoVariables():
-    #guardo variables en archivo de configuracion
-    with open(archConf, "w") as pc: 
-        pc.write("TL = "+str(valoresIngresados[0])+'\n')
-        pc.write("TH = "+str(valoresIngresados[1])+'\n')
-        pc.write("ts = "+str(valoresIngresados[2])+'\n')
-        pc.write("destino = "+str(valoresIngresados[3])+'\n')
-        pc.write("tA = "+str(valoresIngresados[4])+'\n') ##
-        pc.write("Rt = "+str(valoresIngresados[5])+'\n') ##En ohm
-        pc.write("Ct = "+str(valoresIngresados[6])+'\n') ##En nF
-        pc.write("Rl = "+str(valoresIngresados[7])+'\n') ##En ohm
-        pc.write("Cl = "+str(valoresIngresados[8])+'\n') ##En nF
+    #guardo variables en base de datos
+    confi = configuraciones(TL = valoresIngresados[0], TH= valoresIngresados[1], ts = valoresIngresados[2], destino = valoresIngresados[3], tA = valoresIngresados[4], Rt = valoresIngresados[5], Ct = valoresIngresados[6], Rl = valoresIngresados[7], Cl = valoresIngresados[8])
+    try:
+        db.session.add(confi)
+        db.session.commit()
+    except:
+        print("Hubo un error")
+    print("TL = ", configuraciones.query.get(1).TL)
 
 def verificacionVariable(variable, type): #Verifico si la variable es del tipo que espero 
     if not isinstance(variable, type):

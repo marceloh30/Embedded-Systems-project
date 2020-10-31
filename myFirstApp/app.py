@@ -3,8 +3,20 @@ import variablesWeb
 from datetime import date
 from datetime import datetime
 from flask import Flask, render_template, redirect,request, url_for, flash, send_file
+from flask_sqlalchemy import SQLAlchemy
 import subprocess
+
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///obligatorio.db'
+
+#inicar la base de datos
+
+db = SQLAlchemy(app)
+
+#Modelos de db
+
+
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 #define actuators GPIOs
@@ -189,7 +201,7 @@ def downloadFile():
 ##"Main":
 
 #Verifico configuracion.txt:
-variablesWeb.ver_archConf()
+#variablesWeb.ver_archConf()
 #Corro el servidor web Flask:
 if __name__ == "__main__":
    app.run(host='192.168.0.200', port=8080, debug=True)
