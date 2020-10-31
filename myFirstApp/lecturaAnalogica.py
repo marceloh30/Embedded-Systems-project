@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 import math
 import sys #importo sys para obtener parametros de la ejecucion.
+from variablesWeb import configuraciones, db
 
 ##Suponemos que tanto LDR como termistor son siempre el mismo (o el mismo tipo),
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
@@ -28,18 +29,19 @@ R0 = 0
 #Cambio tambien C y pines si es necesario
 if(str(sys.argv[1])=="T"):
     strArch = "valoresT.txt"
-    with open("configuracion.txt","r") as confi:
-        linea = confi.readlines()
-        C = float(linea[6].split("= ")[1])*10**-9 #Ct
-        R0 = float(linea[5].split("= ")[1])       #Rt
+    #with open("configuracion.txt","r") as confi:
+    #    linea = confi.readlines()
+    
+    C = db.session.query(configuraciones).get(1).Ct*10**-9 #Ct
+    R0 = (db.session.query(configuraciones).get(1).Rt)     #Rt
     #Mantengo pines
 elif(str(sys.argv[1])=="L"):
     strArch = "valoresL.txt"
     #Redefino pines de entrada y salida para Lux
-    with open("configuracion.txt","r") as confi:
-        linea = confi.readlines()
-        C = float(linea[8].split("= ")[1])*10**-9 #Cl
-        R0 = float(linea[7].split("= ")[1])       #Rl
+    #with open("configuracion.txt","r") as confi:
+    #    linea = confi.readlines()
+    C = (db.session.query(configuraciones).get(1).Cl)*10**-9 #Cl
+    R0 = (db.session.query(configuraciones).get(1).Rl)      #Rl
     a_pin = 16
     b_pin = 20
 else:
@@ -77,6 +79,7 @@ def analog_read():
 ##Main
 
 ##Pruebo abrir strArch, si no existe lo creo.
+
 try:    
     with open(strArch,"r") as arch:
         print("Archivo",strArch,"existente.")
@@ -119,18 +122,25 @@ def convertVar(lectura,tipo):
 ts = 5 # ts
 while True:
     #Obtengo valores de C y R de configuracion.txt
-    with open("configuracion.txt","r") as confi:
-        linea = confi.readlines()
-        #Dependiendo de si el arch es de T o L, tomo R y C
-        if(sys.argv[1]=="T"):
-            C = float(linea[6].split("= ")[1])*10**-9 #Ct
-            R0 = float(linea[5].split("= ")[1])       #Rt
-            
-        else: ##Solo puede ser T o L
-            C = float(linea[8].split("= ")[1])*10**-9 #Cl
-            R0 = float(linea[7].split("= ")[1])       #Rl
-        #Obtengo ts
-        ts = float(linea[2].split("= ")[1])   
+    if(str(sys.argv[1])=="T"):
+        #with open("configuracion.txt","r") as confi:
+        #    linea = confi.readlines()
+        
+        C = db.session.query(configuraciones).get(1).Ct*10**-9 #Ct
+        R0 = (db.session.query(configuraciones).get(1).Rt)     #Rt
+    #Mantengo pines
+    elif(str(sys.argv[1])=="L"):
+        strArch = "valoresL.txt"
+        #Redefino pines de entrada y salida para Lux
+        #with open("configuracion.txt","r") as confi:
+        #    linea = confi.readlines()
+        C = (db.session.query(configuraciones).get(1).Cl)*10**-9 #Cl
+        R0 = (db.session.query(configuraciones).get(1).Rl)      #Rl
+        a_pin = 16
+        b_pin = 20
+    else:
+        print("Ocurrio un error interpretando argumento (tipo de archivo)")
+        ts = db.session.query(configuraciones).get(1).ts   
     
         
     #Realizo 10 lecturas y obtengo promedio

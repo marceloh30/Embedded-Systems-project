@@ -1,5 +1,4 @@
 import RPi.GPIO as GPIO
-import variablesWeb
 from datetime import date
 from datetime import datetime
 from flask import Flask, render_template, redirect,request, url_for, flash, send_file
@@ -13,7 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///obligatorio.db'
 
 db = SQLAlchemy(app)
 
-#Modelos de db
+import variablesWeb #Parece que este import TIENE que ir aca 
 
 
 
