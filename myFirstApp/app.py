@@ -4,13 +4,47 @@ from datetime import datetime
 from flask import Flask, render_template, redirect,request, url_for, flash, send_file
 from flask_sqlalchemy import SQLAlchemy
 import subprocess
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///obligatorio.db'
-
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 #inicar la base de datos
 
 db = SQLAlchemy(app)
+
+class configuraciones(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    TL = db.Column(db.Integer)
+    TH = db.Column(db.Integer)
+    ts = db.Column(db.Integer)
+    destino = db.Column(db.String(64))
+    tA = db.Column(db.Integer)
+    #Valores de Rt y Ct para lecturaAnalogica de temp.
+    Rt = db.Column(db.Integer)
+    Ct = db.Column(db.Integer)
+    #Valores de Rl y Cl para lecturaAnalogica de lux
+    Rl = db.Column(db.Integer)
+    Cl = db.Column(db.Integer)
+
+    def __repr__(self):
+        return '<configuraciones %r>' % self.TL
+
+class valoresT(db.Model):
+	id = db.Column(db.Integer, primary_key = True)
+	fecha = db.Column(db.DateTime, default = datetime.now)
+	temp = db.Column(db.Float)
+
+	def __repr__(self):
+		return '<valoresT %r>' % self.temp
+
+class valoresL(db.Model):
+	id = db.Column(db.Integer, primary_key = True)
+	fecha = db.Column(db.DateTime, default = datetime.now)
+	lux = db.Column(db.Float)
+
+	def __repr__(self):
+		return '<valoresT %r>' % self.lux
 
 import variablesWeb #Parece que este import TIENE que ir aca 
 
@@ -33,13 +67,16 @@ app.secret_key = 'obligatorio' #Necesario para usar flash
 #Lectura analogica de temperatura:
 
 def accionesIndex():
-	#Leo valores de temperatura actuales 
-	valorT = variablesWeb.leerValor("T")
-	valorL = variablesWeb.leerValor("L")
+	#Leo valores de temperatura actuales
+	#valoresT.query.all()
+	#print(valoresT.query.order_by(valoresT.id.desc()))
+	valorT = valoresT.query.get(len(valoresT.query.all()))
+	print(valorT)
+	#valorL = valoresL.query().get(LAST_INSERT_ID()).lux
 	
-	#if valorT is not None: 
+	if valorT is not None: 
 	# Dejo que sea None para poder activar alarma
-	variablesWeb.temperatura = valorT
+		variablesWeb.temperatura = valorT.temp
 	#if valorL is not None:
 	#	variablesWeb.lux = valorL
 
@@ -203,4 +240,5 @@ def downloadFile():
 #variablesWeb.ver_archConf()
 #Corro el servidor web Flask:
 if __name__ == "__main__":
-   app.run(host='192.168.0.200', port=8080, debug=True)
+	db.create_all()
+	app.run(host='192.168.0.200', port=8080, debug=True)

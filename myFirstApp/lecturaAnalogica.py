@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 import math
 import sys #importo sys para obtener parametros de la ejecucion.
-from variablesWeb import configuraciones, db
+from app import configuraciones, db, valoresT
 
 ##Suponemos que tanto LDR como termistor son siempre el mismo (o el mismo tipo),
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
@@ -140,7 +140,7 @@ while True:
         b_pin = 20
     else:
         print("Ocurrio un error interpretando argumento (tipo de archivo)")
-        ts = db.session.query(configuraciones).get(1).ts   
+    ts = db.session.query(configuraciones).get(1).ts   
     
         
     #Realizo 10 lecturas y obtengo promedio
@@ -162,15 +162,9 @@ while True:
         valNum = convertVar(lectura,str(sys.argv[1]))
         if valNum is not None:
             valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
-    #Creo string y escribo valor en strArch
-    with open(strArch, "a") as f:
-        fecha = datetime.now()
-        #Dejo en 0 los microsegundos
-        fecha = fecha.replace(microsecond=0)
-        #fecha.second() = math.trunc(fecha.second())
-        strn=str(fecha)+","+str(valNum)+"\n"
-        f.write(strn)
-
+            ingreso = valoresT(temp = valNum)
+            db.session.add(ingreso)
+            db.session.commit()
 
     time.sleep(ts) #Espero ts entre medidas
     

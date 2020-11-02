@@ -2,8 +2,9 @@ import time
 from datetime import date
 from datetime import datetime
 from validate_email import validate_email
-from modelosDB import configuraciones, db
+#from modelosDB import configuraciones, db
 import math
+from app import configuraciones, db
 
 temperatura = 0
 #TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
@@ -63,8 +64,8 @@ def guardadoVariables():
         print("Ct = ", configuraciones.query.get(1).Ct)
         print("Rl = ", configuraciones.query.get(1).Rl)
         print("Cl = ", configuraciones.query.get(1).Cl)
-    except:
-        print("Hubo un error")
+    except Exception as e:
+        print("Hubo un error: ", e)
 
 def verificacionVariable(variable, type): #Verifico si la variable es del tipo que espero 
     if not isinstance(variable, type):
