@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 import math
 import sys #importo sys para obtener parametros de la ejecucion.
-from app import configuraciones, db, valoresT
+from app import configuraciones, db, valoresT, valoresL
 
 ##Suponemos que tanto LDR como termistor son siempre el mismo (o el mismo tipo),
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
@@ -11,9 +11,9 @@ from app import configuraciones, db, valoresT
 #Parametros de LDR y NTC:
 Lo=110.0            # Lux
 Ro_LDR=12300        # Ro(Lo)- en Ohms
-gama_LDR=0.8        # parametro caracteristico de LDR (Adimensionado)
+gama_LDR=0.7        # parametro caracteristico de LDR (Adimensionado)
 To_NTC=25.0+273.0   # Kelvin
-Ro_NTC=10.0**4      # Ro(To)- en Ohms
+Ro_NTC=10000        # Ro(To)- en Ohms
 B = 3977.0          # B de NTC (Kelvin)
 
 GPIO.setmode(GPIO.BCM)
@@ -28,20 +28,15 @@ R0 = 0
 #Por lo tanto, obtendre tipo de lectura (Temp. o Lux)
 #Cambio tambien C y pines si es necesario
 if(str(sys.argv[1])=="T"):
-    strArch = "valoresT.txt"
-    #with open("configuracion.txt","r") as confi:
-    #    linea = confi.readlines()
-    
+
     C = db.session.query(configuraciones).get(1).Ct*10**-9 #Ct
     R0 = (db.session.query(configuraciones).get(1).Rt)     #Rt
     #Mantengo pines
 elif(str(sys.argv[1])=="L"):
-    strArch = "valoresL.txt"
-    #Redefino pines de entrada y salida para Lux
-    #with open("configuracion.txt","r") as confi:
-    #    linea = confi.readlines()
+
     C = (db.session.query(configuraciones).get(1).Cl)*10**-9 #Cl
     R0 = (db.session.query(configuraciones).get(1).Rl)      #Rl
+    #Redefino pines de entrada y salida para Lux
     a_pin = 16
     b_pin = 20
 else:
@@ -78,16 +73,6 @@ def analog_read():
 
 ##Main
 
-##Pruebo abrir strArch, si no existe lo creo.
-
-try:    
-    with open(strArch,"r") as arch:
-        print("Archivo",strArch,"existente.")
-
-except Exception as e:
-    #No existe archivo. Lo creo:
-    with open(strArch, 'x') as f:
-        print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
 
 #Funcion para convertir la resistencia leida en Temp o Lux
 def convertVar(lectura,tipo):
@@ -121,23 +106,15 @@ def convertVar(lectura,tipo):
     return valRet
 ts = 5 # ts
 while True:
-    #Obtengo valores de C y R de configuracion.txt
+    #Refresco valores de C y R de bd de configuraciones
     if(str(sys.argv[1])=="T"):
-        #with open("configuracion.txt","r") as confi:
-        #    linea = confi.readlines()
         
         C = db.session.query(configuraciones).get(1).Ct*10**-9 #Ct
         R0 = (db.session.query(configuraciones).get(1).Rt)     #Rt
-    #Mantengo pines
     elif(str(sys.argv[1])=="L"):
-        strArch = "valoresL.txt"
-        #Redefino pines de entrada y salida para Lux
-        #with open("configuracion.txt","r") as confi:
-        #    linea = confi.readlines()
+
         C = (db.session.query(configuraciones).get(1).Cl)*10**-9 #Cl
         R0 = (db.session.query(configuraciones).get(1).Rl)      #Rl
-        a_pin = 16
-        b_pin = 20
     else:
         print("Ocurrio un error interpretando argumento (tipo de archivo)")
     ts = db.session.query(configuraciones).get(1).ts   
@@ -160,11 +137,17 @@ while True:
     print("Lectura: ", lectura)
     if lectura is not None:
         valNum = convertVar(lectura,str(sys.argv[1]))
-        if valNum is not None:
+        if valNum is not None:    
             valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
-            ingreso = valoresT(temp = valNum)
+            #Dependiendo de si es temp o lux creo el objeto necesario para db
+            if(str(sys.argv[1])=="T"):                
+                ingreso = valoresT(temp = valNum)
+            else:
+                ingreso = valoresL(lux = valNum)
+                
             db.session.add(ingreso)
             db.session.commit()
+            
 
     time.sleep(ts) #Espero ts entre medidas
     

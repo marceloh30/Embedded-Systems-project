@@ -16,7 +16,7 @@ estadoAlarma = False
 tiempoEntreAlarmas = 0
 posicionLectura = 0
 archConf="configuracion.txt"
-
+'''
 ##Pruebo abrir archConf, si no existe lo creo.
 def ver_archConf():
     try:    
@@ -35,7 +35,7 @@ def ver_archConf():
                 print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
                 #Hago el primer guardado de valores predeterminados
                 guardadoVariables()
-
+'''
 def guardadoVariables():
     #guardo variables en base de datos
     confi = configuraciones(TL = valoresIngresados[0], TH= valoresIngresados[1], ts = valoresIngresados[2], destino = valoresIngresados[3], tA = valoresIngresados[4], Rt = valoresIngresados[5], Ct = valoresIngresados[6], Rl = valoresIngresados[7], Cl = valoresIngresados[8])
@@ -220,6 +220,7 @@ def buscarVals(tipo,f_desde,f_hasta):
                     valNum=float(arr[1])
                 #Verifico si estoy dentro de valores de tiempo
                 if (f_desde <= fecha_l and f_hasta >= fecha_l):
+                    
                     rets[0].append(fecha_l)
                     rets[1].append(valNum)
     return rets

@@ -32,7 +32,13 @@ class configuraciones(db.Model):
 
 class valoresT(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
-	fecha = db.Column(db.DateTime, default = datetime.now)
+
+	#Obtengo fecha actual sin microsegundos
+	fechaPredet= datetime.now()
+	fechaPredet= fechaPredet.replace(microsecond=0)
+
+	#Atributos de valoresT
+	fecha = db.Column(db.DateTime, default = fechaPredet)
 	temp = db.Column(db.Float)
 
 	def __repr__(self):
@@ -40,7 +46,13 @@ class valoresT(db.Model):
 
 class valoresL(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
-	fecha = db.Column(db.DateTime, default = datetime.now)
+
+	#Obtengo fecha actual sin microsegundos
+	fechaPredet= datetime.now()
+	fechaPredet= fechaPredet.replace(microsecond=0)
+
+	#Atributos de valoresL
+	fecha = db.Column(db.DateTime, default = fechaPredet)
 	lux = db.Column(db.Float)
 
 	def __repr__(self):
@@ -52,11 +64,12 @@ import variablesWeb #Parece que este import TIENE que ir aca
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
-#define actuators GPIOs
+#Defino nro GPIO del led
 pin_led = 17
-#initialize estados a mostrar
+#Inicializo estados a mostrar
 estado_led = 0
 valorT = 0
+valorL = 0
 # Defino como output el pin del led y lo dejo en off
 GPIO.setup(pin_led, GPIO.OUT)     
 GPIO.output(pin_led, GPIO.LOW)
@@ -72,10 +85,12 @@ def accionesIndex():
 	#print(valoresT.query.order_by(valoresT.id.desc()))
 	valorT = valoresT.query.get(len(valoresT.query.all()))
 	print(valorT)
-	#valorL = valoresL.query().get(LAST_INSERT_ID()).lux
-	
+
+	valorL = valoresL.query.get(len(valoresL.query.all()))
+	print(valorL)
+
 	if valorT is not None: 
-	# Dejo que sea None para poder activar alarma
+	# Dejo que sea None para poder activar alarma (no necesario en L)
 		variablesWeb.temperatura = valorT.temp
 	#if valorL is not None:
 	#	variablesWeb.lux = valorL
@@ -85,7 +100,7 @@ def accionesIndex():
 		
 		'led' : estado_led,
 		'valorT' : variablesWeb.temperatura,
-		#'valorL' :	valorL
+		'valorL' : valorL.lux,
 		'estadoAlarma' : variablesWeb.estadoAlarma
 	}
 	return templateData
