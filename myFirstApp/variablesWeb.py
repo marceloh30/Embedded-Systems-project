@@ -15,27 +15,7 @@ valoresIngresados = valoresPredeterminados
 estadoAlarma = False
 tiempoEntreAlarmas = 0
 posicionLectura = 0
-archConf="configuracion.txt"
-'''
-##Pruebo abrir archConf, si no existe lo creo.
-def ver_archConf():
-    try:    
-        with open(archConf,"r") as arch:
-            print("Archivo",archConf,"existente.")
-            #Leo los valores del archivo:
-            print("Valores actuales:")
-            for linea in arch.readlines():
-                print(linea)
 
-    except Exception as e:
-        print(e.args,": Excepcion capturada")
-        #Si es una excepcion debido a que archivo no existe lo creo:
-        if(e.args[0]==2):
-            with open(archConf, 'x') as f:
-                print(e,"\nArchivo no existe. Creo el archivo:\n",str(f))
-                #Hago el primer guardado de valores predeterminados
-                guardadoVariables()
-'''
 def guardadoVariables():
     #guardo variables en base de datos
     confi = configuraciones(TL = valoresIngresados[0], TH= valoresIngresados[1], ts = valoresIngresados[2], destino = valoresIngresados[3], tA = valoresIngresados[4], Rt = valoresIngresados[5], Ct = valoresIngresados[6], Rl = valoresIngresados[7], Cl = valoresIngresados[8])
@@ -64,6 +44,7 @@ def guardadoVariables():
         print("Ct = ", configuraciones.query.get(1).Ct)
         print("Rl = ", configuraciones.query.get(1).Rl)
         print("Cl = ", configuraciones.query.get(1).Cl)
+        print("alarma = ", configuraciones.query.get(1).alarma)        
     except Exception as e:
         print("Hubo un error: ", e)
 
@@ -138,18 +119,20 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
 
     return aux
 
+#Funcion para cambiar valor de alarma en db de configuraciones y activar asi envio de mail
 def envioAlarma():
+    #Obtengo valor de alarma de db (configuraciones) 
+    #Cambio valor del mismo segun estadoAlarma y las situaciones de aviso (envio de email)
+    confi = configuraciones.query.get(1)
+    if estadoAlarma == True:
 
-    with open("EstadoDeAlarma.txt", "w") as eA:
-
-        if estadoAlarma == True:
-            if temperatura is None or float(temperatura) < float(valoresIngresados[0]) or float(temperatura) > float(valoresIngresados[1]):
-                eA.write("1 - 1")
-            else:
-                eA.write("1 - 0")
+        if temperatura is None or float(temperatura) < float(valoresIngresados[0]) or float(temperatura) > float(valoresIngresados[1]):
+            confi.alarma = "1 - 1"
         else:
-            eA.write("0 - 0")
-
+            confi.alarma = "1 - 0"
+    else:
+        confi.alarma = "0 - 0" 
+    db.session.commit()
 
 #Funcion para leer valores num(Temp o Lux) de sus respectivos txt
 def leerValor(tipo): #Devuelve largo de linea y valNum

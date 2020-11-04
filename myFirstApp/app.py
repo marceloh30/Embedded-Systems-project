@@ -26,7 +26,7 @@ class configuraciones(db.Model):
     #Valores de Rl y Cl para lecturaAnalogica de lux
     Rl = db.Column(db.Integer)
     Cl = db.Column(db.Integer)
-
+    alarma = db.Column(db.String(8), default = "0 - 0")
     def __repr__(self):
         return '<configuraciones %r>' % self.TL
 
@@ -56,7 +56,7 @@ class valoresL(db.Model):
 	lux = db.Column(db.Float)
 
 	def __repr__(self):
-		return '<valoresT %r>' % self.lux
+		return '<valoresL %r>' % self.lux
 
 import variablesWeb #Parece que este import TIENE que ir aca 
 
@@ -68,15 +68,22 @@ GPIO.setwarnings(False)
 pin_led = 17
 #Inicializo estados a mostrar
 estado_led = 0
-valorT = 0
-valorL = 0
 # Defino como output el pin del led y lo dejo en off
 GPIO.setup(pin_led, GPIO.OUT)     
 GPIO.output(pin_led, GPIO.LOW)
 
 app.secret_key = 'obligatorio' #Necesario para usar flash
 
-##Ejecuto otros programas necesarios para el buen funcionamiento del sist:
+#Creo db de configuraciones si no fue creada aun
+confi = configuraciones(TL = 0, TH= 100, ts = 5, destino = "", tA = 4, Rt = 10000, Ct = 120, Rl = 10000, Cl = 550, alarma = "0 - 0")
+try:
+	if len(configuraciones.query.all()) < 1:
+		db.session.add(confi)
+		db.session.commit()
+except Exception as e:
+    print("Hubo un error: ", e)		
+
+
 #Lectura analogica de temperatura:
 
 def accionesIndex():
@@ -88,20 +95,21 @@ def accionesIndex():
 
 	valorL = valoresL.query.get(len(valoresL.query.all()))
 	print(valorL)
-	mostrarT = None
-	mostrarL = None
+
 	if valorT is not None: 
 	# Dejo que sea None para poder activar alarma (no necesario en L)
-		mostrarT = valorT.temp
+		variablesWeb.temperatura = valorT.temp
+	lux = None
 	if valorL is not None:
-		mostrarL = valorL
+		lux = valorL.lux
+
 
 	estado_led = GPIO.input(pin_led)
 	templateData = {
 		
 		'led' : estado_led,
-		'valorT' : mostrarT,
-		'valorL' : mostrarL,
+		'valorT' : variablesWeb.temperatura,
+		'valorL' : lux,
 		'estadoAlarma' : variablesWeb.estadoAlarma
 	}
 	return templateData
