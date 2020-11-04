@@ -34,11 +34,11 @@ class valoresT(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 
 	#Obtengo fecha actual sin microsegundos
-	fechaPredet= datetime.now()
-	fechaPredet= fechaPredet.replace(microsecond=0)
+	#fechaPredet= datetime.now().replace(microsecond=0)
+	#fechaPredet= fechaPredet.replace(microsecond=0)
 
 	#Atributos de valoresT
-	fecha = db.Column(db.DateTime, default = fechaPredet)
+	fecha = db.Column(db.DateTime, default = datetime.now)
 	temp = db.Column(db.Float)
 
 	def __repr__(self):
@@ -88,19 +88,20 @@ def accionesIndex():
 
 	valorL = valoresL.query.get(len(valoresL.query.all()))
 	print(valorL)
-
+	mostrarT = None
+	mostrarL = None
 	if valorT is not None: 
 	# Dejo que sea None para poder activar alarma (no necesario en L)
-		variablesWeb.temperatura = valorT.temp
-	#if valorL is not None:
-	#	variablesWeb.lux = valorL
+		mostrarT = valorT.temp
+	if valorL is not None:
+		mostrarL = valorL
 
 	estado_led = GPIO.input(pin_led)
 	templateData = {
 		
 		'led' : estado_led,
-		'valorT' : variablesWeb.temperatura,
-		'valorL' : valorL.lux,
+		'valorT' : mostrarT,
+		'valorL' : mostrarL,
 		'estadoAlarma' : variablesWeb.estadoAlarma
 	}
 	return templateData

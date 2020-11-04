@@ -4,7 +4,7 @@ from datetime import datetime
 from validate_email import validate_email
 #from modelosDB import configuraciones, db
 import math
-from app import configuraciones, db
+from app import configuraciones, db, valoresT, valoresL
 
 temperatura = 0
 #TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
@@ -189,40 +189,44 @@ def leerValor(tipo): #Devuelve largo de linea y valNum
 def buscarVals(tipo,f_desde,f_hasta):
 
     if (tipo == "T"):
-        strArch = "valoresT.txt"
+        ##strArch = "valoresT.txt"
+        fechasDeseadas = valoresT.query.filter(valoresT.fecha.between(f_desde,f_hasta))
     elif (tipo == "L"):
-        strArch = "valoresL.txt"
-    else:
-        strArch = None
-
+        fechasDeseadas = valoresL.query.filter(valoresL.fecha.between(f_desde,f_hasta))
+    
+    
     #Defino listas a devolver
     rets=[[],[]] #rets[0]=fechas[],[1]=vals[]
-    if strArch is not None:
+    if fechasDeseadas.count() > 0:
     #supongo archivos ya creados:
-        with open(strArch, "r") as arch:
-            
+        
+        for i in fechasDeseadas:
+            '''
+            #separo fecha y valor num. de linea:
+            arr=linea.split(",")
+            #Separo dia y horario de la fecha de arr
+            fh_array=arr[0].split(" ")
+            #Separo dia,mes,anio de la fecha
+            dte=fh_array[0].split("-")
+            #Separo hora, min y seg del horario
+            hora=fh_array[1].split(":")
+            '''
+            #Creo datetime con los valores de linea
+            fecha_l=i.fecha#datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0)
+            if tipo == 'T':
+                val = i.temp
+            else:
+                val = i.lux
+            if(val is None):
+                valNum=None
+            else:  
+                valNum=val
+            #Verifico si estoy dentro de valores de tiempo
+            if (f_desde <= fecha_l and f_hasta >= fecha_l):
+                
+                rets[0].append(fecha_l)
+                rets[1].append(valNum)
 
-            for linea in arch.readlines():
-                #separo fecha y valor num. de linea:
-                arr=linea.split(",")
-                #Separo dia y horario de la fecha de arr
-                fh_array=arr[0].split(" ")
-                #Separo dia,mes,anio de la fecha
-                dte=fh_array[0].split("-")
-                #Separo hora, min y seg del horario
-                hora=fh_array[1].split(":")
-
-                #Creo datetime con los valores de linea
-                fecha_l=datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0) 
-                if(arr[1].startswith("None")):
-                    valNum=None
-                else:  
-                    valNum=float(arr[1])
-                #Verifico si estoy dentro de valores de tiempo
-                if (f_desde <= fecha_l and f_hasta >= fecha_l):
-                    
-                    rets[0].append(fecha_l)
-                    rets[1].append(valNum)
     return rets
 
 def arch_Historial(tipo,vals,fechas):
