@@ -134,39 +134,6 @@ def envioAlarma():
         confi.alarma = "0 - 0" 
     db.session.commit()
 
-#Funcion para leer valores num(Temp o Lux) de sus respectivos txt
-def leerValor(tipo): #Devuelve largo de linea y valNum
-    ret=None
-    if (tipo == "T"):
-        strArch = "valoresT.txt"
-    elif (tipo == "L"):
-        strArch = "valoresL.txt"
-    else:
-        strArch = None
-    if strArch is not None:
-        try:
-            with open(strArch, "r") as f:
-                ult_linea=[]
-                #Leo lineas y tomo la ultima
-                for linea in f.readlines():
-                    ult_linea=linea
-                    pass
-                
-                if len(ult_linea) != 0:
-                    ret=ult_linea.split(",")[1]	#Guardo valNum
-                    if(ret=="None\n"):
-                        ret=None
-                
-        except Exception as e:
-            print(e.args,": excepcion capturada.")
-            #Verifico si excepcion es por archivo no creado y en ese caso lo creo.
-            if(e.args[0]==2):
-                with open(strArch, "x") as f:
-                    print(e, "\nArchivo no existe. Creo el archivo", strArch, ".")
-        
-    return ret
-
-
 
 ##Funcion de busqueda de fechas: Retorna Fechas,valorNum(temp o lux)
 def buscarVals(tipo,f_desde,f_hasta):
@@ -181,25 +148,18 @@ def buscarVals(tipo,f_desde,f_hasta):
     #Defino listas a devolver
     rets=[[],[]] #rets[0]=fechas[],[1]=vals[]
     if fechasDeseadas.count() > 0:
-    #supongo archivos ya creados:
-        
+
+    #Si en la db tengo fechas dentro de las deseadas, obtengo valores:        
         for i in fechasDeseadas:
-            '''
-            #separo fecha y valor num. de linea:
-            arr=linea.split(",")
-            #Separo dia y horario de la fecha de arr
-            fh_array=arr[0].split(" ")
-            #Separo dia,mes,anio de la fecha
-            dte=fh_array[0].split("-")
-            #Separo hora, min y seg del horario
-            hora=fh_array[1].split(":")
-            '''
+
             #Creo datetime con los valores de linea
-            fecha_l=i.fecha#datetime(int(dte[0]),int(dte[1]),int(dte[2]),int(hora[0]),int(hora[1]),int(hora[2]),0)
+            fecha_l=i.fecha
+            #Verifico que tipo de variable busco
             if tipo == 'T':
                 val = i.temp
             else:
                 val = i.lux
+
             if(val is None):
                 valNum=None
             else:  

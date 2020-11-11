@@ -1,5 +1,6 @@
 import time
 import smtplib
+from app import configuraciones, db
 
 def envioMail(destino):
     server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -14,15 +15,10 @@ def envioMail(destino):
 tiempoAlarmas = 0.0
 while True:
     try:
-
-        with open("EstadoDeAlarma.txt", "r") as estadoAlarma:  
-            estado = estadoAlarma.read()
-
-        with open("configuracion.txt", "r") as configuracion: 
-            confi = configuracion.readlines()
-            tA = confi[4].split("= ")[1]
-            destino = confi[3].split("= ")[1]
-        
+        destino = configuraciones.query.get(1).destino
+        tA = configuraciones.query.get(1).tA
+        estado = configuraciones.query.get(1).alarma
+        print(estado)
         if estado == "1 - 1":
             tiempoAlarmas = time.time()
             print("Enviando aviso...")
@@ -38,14 +34,11 @@ while True:
                
          
     except Exception as e:
-        print("Error en el envio de mail:",e)
+        print("Ocurrio un error:",e)
         time.sleep(30)
         if e==smtplib.SMTPException:
             print("Error de correo")            
-        #Si es una excepcion debido a que archivo no existe lo creo:
-        if (e.args[0]==2):
-            with open("EstadoDeAlarma.txt", 'x') as f:
-                print("Archivo no existe. Creo el archivo EstadoDeAlarma.txt.")
+
 
 
 

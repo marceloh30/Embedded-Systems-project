@@ -209,7 +209,7 @@ def recTiempos():
 			yr_actual=datetime.now().year
 
 			if (int(dma1[0])>yr_actual or int(dma2[0])>yr_actual):
-				str_flash="Error al recibir años: no se predice futuro, estamos en el año " + str(2020)
+				str_flash="Error al recibir años: no se predice futuro, estamos en el año " + str(yr_actual)
 				flash(str_flash)
 			else:
 				#args de datetime: Anio, Mes, Dia, Hora, Min, Seg, Miliseg
