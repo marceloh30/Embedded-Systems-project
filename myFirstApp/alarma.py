@@ -6,7 +6,13 @@ def envioMail(destino, zona):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login("obligatorioferreirahenandez@gmail.com", "Embebidos2020")
-    msg="La alarma esta sonando, se activo en: " + zona
+    msg="""From: Pi <from@fromdomain.com>
+To: To Person <to@todomain.com>
+Subject: SMTP e-mail test
+
+La alarma se ha activado en la zona:
+""" + zona
+    print(msg)
     to = destino
     server.sendmail("obligatorioferreirahernandez@gmail.com", to, msg)
     server.quit()

@@ -218,7 +218,7 @@ def arch_Historial(tipo,vals,fechas):
     with open(dirArch,"w+") as arch:
         #Itero y voy escribiendo las lineas:
         for val, fecha in zip(vals, fechas):
-            if tipo=="T":
+            if tipo=="T" or tipo == "TD":
                 strTipo = ["Temperatura: "," grados Celcius"]
             else:
                 strTipo = ["Valor de luz: "," Lux"]

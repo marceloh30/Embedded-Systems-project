@@ -60,7 +60,7 @@ class valoresTD(db.Model):
 	temp = db.Column(db.Float)
 
 	def __repr__(self):
-		return '<valoresT %r>' % self.temp
+		return '<valoresTD %r>' % self.temp
 
 class valoresL(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
@@ -222,9 +222,13 @@ def recTiempos():
 			tipoVal="Iluminancia (Lux)"
 		if (tipo == "TD"):
 			tipoVal = "Temperatura (°C)"
-
+		print("EL TIPO ES: " + tipo)
+		print("EL t1 ES: " + t1)
+		print("EL fecha1 ES: " + fecha1)
+		print("EL t2 ES: " + t2)
+		print("EL fecha2 ES: " + fecha2)
 		#Verifico si recibi valores numericos
-		if (str_conNums(t1) and str_conNums(t2) and str_conNums(fecha2) and str_conNums(fecha1) and (tipo is "T" or tipo is "L" or tipo is "TD")):
+		if (str_conNums(t1) and str_conNums(t2) and str_conNums(fecha2) and str_conNums(fecha1) and (tipo is "T" or tipo is "L" or tipo == "TD")):
 
 			##Formato -> t: '18:06', fecha: '2020-09-01'
 			#Obtengo hora y fecha de cada valor obtenido por pagina web
