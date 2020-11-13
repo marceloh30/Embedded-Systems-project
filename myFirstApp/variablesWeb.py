@@ -4,11 +4,12 @@ from datetime import datetime
 from validate_email import validate_email
 #from modelosDB import configuraciones, db
 import math
-from app import configuraciones, db, valoresT, valoresL
+from app import configuraciones, db, valoresT, valoresL, valoresTD
 
 temperatura = 0
+temperaturaD = 0
 #TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
-valoresPredeterminados = [0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 550.0, 10000.0, 550.0]
+valoresPredeterminados = [0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 550.0, 10000.0, 550.0, 0.0, 200.0]
 #Comienzo con valores predeterminados
 valoresIngresados = valoresPredeterminados 
 
@@ -18,7 +19,7 @@ posicionLectura = 0
 
 def guardadoVariables():
     #guardo variables en base de datos
-    confi = configuraciones(TL = valoresIngresados[0], TH= valoresIngresados[1], ts = valoresIngresados[2], destino = valoresIngresados[3], tA = valoresIngresados[4], Rt = valoresIngresados[5], Ct = valoresIngresados[6], Rl = valoresIngresados[7], Cl = valoresIngresados[8])
+    confi = configuraciones(TL = valoresIngresados[0], TH= valoresIngresados[1], ts = valoresIngresados[2], destino = valoresIngresados[3], tA = valoresIngresados[4], Rt = valoresIngresados[5], Ct = valoresIngresados[6], Rl = valoresIngresados[7], Cl = valoresIngresados[8], TLD = valoresIngresados[9], THD = valoresIngresados[10])
     try:
         if len(configuraciones.query.all()) < 1:
             db.session.add(confi)
@@ -34,6 +35,8 @@ def guardadoVariables():
             confiVieja.Ct = confi.Ct
             confiVieja.Rl = confi.Rl
             confiVieja.Cl = confi.Cl
+            confiVieja.TLD = confi.TLD
+            confiVieja.THD = confi.THD
             db.session.commit()
         print("TL = ", configuraciones.query.get(1).TL)
         print("TH = ", configuraciones.query.get(1).TH)
@@ -44,7 +47,9 @@ def guardadoVariables():
         print("Ct = ", configuraciones.query.get(1).Ct)
         print("Rl = ", configuraciones.query.get(1).Rl)
         print("Cl = ", configuraciones.query.get(1).Cl)
-        print("alarma = ", configuraciones.query.get(1).alarma)        
+        print("alarma = ", configuraciones.query.get(1).alarma) 
+        print("TL = ", configuraciones.query.get(1).TLD)
+        print("TH = ", configuraciones.query.get(1).THD)       
     except Exception as e:
         print("Hubo un error: ", e)
 
@@ -54,7 +59,7 @@ def verificacionVariable(variable, type): #Verifico si la variable es del tipo q
     else:
         return True
 
-def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
+def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl, TLD, THD):
     aux = "" #Variable para devolver los parametros erroneos y mostrarlos en pagina web
     if (verificacionVariable(TL, float)):
         if TL is not None:
@@ -112,7 +117,26 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl):
         if Cl is not None:
             valoresIngresados[8] = Cl
             aux = aux + "Cl "
-            
+
+    if (verificacionVariable(TLD, float)):
+        if TLD is not None:
+            if THD is None:
+                val = valoresIngresados[10]
+            else:
+                val = THD
+            if TL < val:
+                valoresIngresados[9] = TLD
+                aux = aux  + " TLD"
+                    
+    if (verificacionVariable(THD, float)):
+        if THD is not None:
+            if TLD is None:
+                val = valoresIngresados[9]
+            else:
+                val = TLD
+            if THD > val:
+                valoresIngresados[10] = THD
+                aux = aux + " THD"
 
     #Guardo variables:
     guardadoVariables()
@@ -130,6 +154,10 @@ def envioAlarma():
             confi.alarma = "1 - 1"
         else:
             confi.alarma = "1 - 0"
+        if temperatura is None or float(temperaturaD) < float(valoresIngresados[9]) or float(temperaturaD) > float(valoresIngresados[10]):
+            confi.alarma = confi.alarma + " - 1"
+        else:
+            confi.alarma = confi.alarma + " - 0"
     else:
         confi.alarma = "0 - 0" 
     db.session.commit()
@@ -143,6 +171,8 @@ def buscarVals(tipo,f_desde,f_hasta):
         fechasDeseadas = valoresT.query.filter(valoresT.fecha.between(f_desde,f_hasta))
     elif (tipo == "L"):
         fechasDeseadas = valoresL.query.filter(valoresL.fecha.between(f_desde,f_hasta))
+    elif (tipo == "TD"):
+        fechasDeseadas = valoresTD.query.filter(valoresTD.fecha.between(f_desde,f_hasta))
     
     
     #Defino listas a devolver
@@ -155,7 +185,7 @@ def buscarVals(tipo,f_desde,f_hasta):
             #Creo datetime con los valores de linea
             fecha_l=i.fecha
             #Verifico que tipo de variable busco
-            if tipo == 'T':
+            if tipo == 'T' or tipo == 'TD':
                 val = i.temp
             else:
                 val = i.lux

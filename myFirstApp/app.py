@@ -14,23 +14,41 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 class configuraciones(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    TL = db.Column(db.Integer)
-    TH = db.Column(db.Integer)
-    ts = db.Column(db.Integer)
-    destino = db.Column(db.String(64))
-    tA = db.Column(db.Integer)
-    #Valores de Rt y Ct para lecturaAnalogica de temp.
-    Rt = db.Column(db.Integer)
-    Ct = db.Column(db.Integer)
-    #Valores de Rl y Cl para lecturaAnalogica de lux
-    Rl = db.Column(db.Integer)
-    Cl = db.Column(db.Integer)
-    alarma = db.Column(db.String(8), default = "0 - 0")
-    def __repr__(self):
-        return '<configuraciones %r>' % self.TL
+	id = db.Column(db.Integer, primary_key=True)
+	TL = db.Column(db.Integer)
+	TH = db.Column(db.Integer)
+	ts = db.Column(db.Integer)
+	destino = db.Column(db.String(64))
+	tA = db.Column(db.Integer)
+	#Valores de Rt y Ct para lecturaAnalogica de temp.
+	Rt = db.Column(db.Integer)
+	Ct = db.Column(db.Integer)
+	#Valores de Rl y Cl para lecturaAnalogica de lux
+	Rl = db.Column(db.Integer)
+	Cl = db.Column(db.Integer)
+	#Valores umbraales de temperatura para el sensor digital 
+	TLD = db.Column(db.Integer)
+	THD = db.Column(db.Integer)
+	alarma = db.Column(db.String(12), default = "0 - 0")
+
+	def __repr__(self):
+		return '<configuraciones %r>' % self.TL
 
 class valoresT(db.Model):
+	id = db.Column(db.Integer, primary_key = True)
+
+	#Obtengo fecha actual sin microsegundos
+	#fechaPredet= datetime.now().replace(microsecond=0)
+	#fechaPredet= fechaPredet.replace(microsecond=0)
+
+	#Atributos de valoresT
+	fecha = db.Column(db.DateTime, default = datetime.now)
+	temp = db.Column(db.Float)
+
+	def __repr__(self):
+		return '<valoresT %r>' % self.temp
+
+class valoresTD(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 
 	#Obtengo fecha actual sin microsegundos
@@ -75,7 +93,7 @@ GPIO.output(pin_led, GPIO.LOW)
 app.secret_key = 'obligatorio' #Necesario para usar flash
 
 #Creo db de configuraciones si no fue creada aun
-confi = configuraciones(TL = 0, TH= 100, ts = 5, destino = "", tA = 4, Rt = 10000, Ct = 120, Rl = 10000, Cl = 550, alarma = "0 - 0")
+confi = configuraciones(TL = 0, TH= 100, ts = 5, destino = "", tA = 4, Rt = 10000, Ct = 550, Rl = 10000, Cl = 550, alarma = "0 - 0", TLD = 0, THD = 100)
 try:
 	if len(configuraciones.query.all()) < 1:
 		db.session.add(confi)
@@ -96,12 +114,16 @@ def accionesIndex():
 	valorL = valoresL.query.get(len(valoresL.query.all()))
 	print(valorL)
 
+	valorTD = valoresTD.query.get(len(valoresTD.query.all()))
+
 	if valorT is not None: 
 	# Dejo que sea None para poder activar alarma (no necesario en L)
 		variablesWeb.temperatura = valorT.temp
 	lux = None
 	if valorL is not None:
 		lux = valorL.lux
+	if valorTD is not None:
+		variablesWeb.temperaturaD = valorTD.temp
 
 
 	estado_led = GPIO.input(pin_led)
@@ -110,6 +132,7 @@ def accionesIndex():
 		'led' : estado_led,
 		'valorT' : variablesWeb.temperatura,
 		'valorL' : lux,
+		'valorTD' : variablesWeb.temperaturaD,
 		'estadoAlarma' : variablesWeb.estadoAlarma
 	}
 	return templateData
@@ -155,9 +178,11 @@ def tomaDatos():
 		#Valores de Rl y Cl para lecturaAnalogica de lux
 		Rl = request.form.get('Rl', type=float)
 		Cl = request.form.get('Cl', type=float)
+		TLD = request.form.get('TLD', type=float)
+		THD = request.form.get('THD', type=float)
 
 		#Verifico si concuerda con los valores maximos y minimos y en ese caso guardo las variables recibidas
-		aux = variablesWeb.cambioValores(TL, TH, ts, destino, tA, Rt, Ct, Rl, Cl)
+		aux = variablesWeb.cambioValores(TL, TH, ts, destino, tA, Rt, Ct, Rl, Cl, TLD, THD)
 		if len(aux) > 0:
 			flash('Se ingresaron de forma correcta el/los parametro/s: ' + aux)
 			print(aux)	
@@ -174,7 +199,7 @@ def str_conNums(str_in):
 ##Ruta de recepcion de intervalos de tiempo para Temps-Luxs
 @app.route("/historial" , methods = ["GET", "POST"])
 def recTiempos():
-	tipoVal = "Temperatura/Iluminancia"	
+	tipoVal = "Temperatura/Iluminancia/TemperaturaD"	
 	templateData= {
 		"numLineas":0,
 		"temps":[],
@@ -184,7 +209,7 @@ def recTiempos():
 	}
 	if request.method == 'POST':
 		#Recibo valores desde pagina web
-		tipo = str(request.form['tipo']) #= "T" o "L"
+		tipo = str(request.form['tipo']) #= "T" o "L" o "TD"
 		t1 = str(request.form['t1'])
 		fecha1 = str(request.form['fecha1'])
 		t2 = str(request.form['t2'])
@@ -195,9 +220,11 @@ def recTiempos():
 			tipoVal="Temperatura (°C)"
 		elif (tipo=="L"):
 			tipoVal="Iluminancia (Lux)"
+		if (tipo == "TD"):
+			tipoVal = "Temperatura (°C)"
 
 		#Verifico si recibi valores numericos
-		if (str_conNums(t1) and str_conNums(t2) and str_conNums(fecha2) and str_conNums(fecha1) and (tipo is "T" or tipo is "L")):
+		if (str_conNums(t1) and str_conNums(t2) and str_conNums(fecha2) and str_conNums(fecha1) and (tipo is "T" or tipo is "L" or tipo is "TD")):
 
 			##Formato -> t: '18:06', fecha: '2020-09-01'
 			#Obtengo hora y fecha de cada valor obtenido por pagina web

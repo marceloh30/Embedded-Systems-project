@@ -2,11 +2,11 @@ import time
 import smtplib
 from app import configuraciones, db
 
-def envioMail(destino):
+def envioMail(destino, zona):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login("obligatorioferreirahenandez@gmail.com", "Embebidos2020")
-    msg="La alarma esta sonando"
+    msg="La alarma esta sonando, se activo en: " + zona
     to = destino
     server.sendmail("obligatorioferreirahernandez@gmail.com", to, msg)
     server.quit()
@@ -19,10 +19,16 @@ while True:
         tA = configuraciones.query.get(1).tA
         estado = configuraciones.query.get(1).alarma
         print(estado)
-        if estado == "1 - 1":
+        if estado == "1 - 1 - 0" or estado == "1 - 1 - 1" or estado == "1 - 0 - 1":
+            if estado == "1 - 1 - 0":
+                zona = " Sensor analogico"
+            elif estado == "1 - 1 - 1":
+                zona = " Ambos sensores"
+            else:
+                zona = " Sensor digital"
             tiempoAlarmas = time.time()
             print("Enviando aviso...")
-            envioMail(destino)
+            envioMail(destino, zona)
             time.sleep(float(tA)*60)#Duermo el programa hasta que tenga que sonar nuevamente la alarma
         elif estado == "1 - 0":
             print("Se encendio alarma.")

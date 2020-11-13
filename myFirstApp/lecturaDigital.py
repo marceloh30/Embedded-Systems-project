@@ -1,7 +1,7 @@
 import os
 import glob
 import time
-from app import configuraciones, db
+from app import configuraciones, db, valoresTD
 
 ts = 0
 
@@ -30,8 +30,15 @@ def Valortemp():
         return temp
 
 while True:
-    print(Valortemp())
-    tiempo = db.session.querry(configuraciones).get(1).ts
+    temperatura = Valortemp()
+    print("El valor de la temperatura es: " + str(temperatura))
+
+    ingreso = valoresTD(temp = temperatura)
+
+    db.session.add(ingreso)
+    db.session.commit()
+
+    tiempo = db.session.query(configuraciones).get(1).ts
     time.sleep(tiempo)
 
     
