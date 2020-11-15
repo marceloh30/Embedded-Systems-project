@@ -6,8 +6,8 @@ from validate_email import validate_email
 import math
 from app import configuraciones, db, valoresT, valoresL, valoresTD
 
-temperatura = 0
-temperaturaD = 0
+temperatura = None
+temperaturaD = None
 #TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
 valoresPredeterminados = [0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 550.0, 10000.0, 550.0, 0.0, 200.0]
 #Comienzo con valores predeterminados
@@ -36,7 +36,8 @@ def guardadoVariables():
             confiVieja.Rl = confi.Rl
             confiVieja.Cl = confi.Cl
             confiVieja.TLD = confi.TLD
-            confiVieja.THD = confi.THD
+            confiVieja.THD = confi.THD            
+            
             db.session.commit()
         print("TL = ", configuraciones.query.get(1).TL)
         print("TH = ", configuraciones.query.get(1).TH)
@@ -164,7 +165,7 @@ def envioAlarma():
 
 
 ##Funcion de busqueda de fechas: Retorna Fechas,valorNum(temp o lux)
-def buscarVals(tipo,f_desde,f_hasta):
+def buscarVals(tipo,f_desde,f_hasta,zona):
 
     if (tipo == "T"):
         ##strArch = "valoresT.txt"
@@ -176,14 +177,15 @@ def buscarVals(tipo,f_desde,f_hasta):
     
     
     #Defino listas a devolver
-    rets=[[],[]] #rets[0]=fechas[],[1]=vals[]
+    rets=[[],[],[]] #rets[0]=fechas[],rets[1]=vals[],rets[2]=zonas[]
     if fechasDeseadas.count() > 0:
 
     #Si en la db tengo fechas dentro de las deseadas, obtengo valores:        
         for i in fechasDeseadas:
 
-            #Creo datetime con los valores de linea
-            fecha_l=i.fecha
+            #Obtengo fecha y zona de i
+            fecha_i=i.fecha
+            zona_i=i.zona
             #Verifico que tipo de variable busco
             if tipo == 'T' or tipo == 'TD':
                 val = i.temp
@@ -195,14 +197,16 @@ def buscarVals(tipo,f_desde,f_hasta):
             else:  
                 valNum=val
             #Verifico si estoy dentro de valores de tiempo
-            if (f_desde <= fecha_l and f_hasta >= fecha_l):
+            if (f_desde <= fecha_i and f_hasta >= fecha_i):
                 
-                rets[0].append(fecha_l)
-                rets[1].append(valNum)
+                if(zona_i == zona or zona == "Ambos"):                    
+                    rets[0].append(fecha_i)
+                    rets[1].append(valNum)
+                    rets[2].append(zona_i)
 
     return rets
 
-def arch_Historial(tipo,vals,fechas):
+def arch_Historial(tipo,vals,fechas,zonas):
     dirArch="/tmp/archivoHistorial.txt"
     try:
         with open(dirArch,"x") as cf:
@@ -217,12 +221,12 @@ def arch_Historial(tipo,vals,fechas):
     #Una vez con archivo creado/limpiado, escribo datos:
     with open(dirArch,"w+") as arch:
         #Itero y voy escribiendo las lineas:
-        for val, fecha in zip(vals, fechas):
+        for val, fecha, zona in zip(vals, fechas, zonas):
             if tipo=="T" or tipo == "TD":
                 strTipo = ["Temperatura: "," grados Celcius"]
             else:
                 strTipo = ["Valor de luz: "," Lux"]
             #Escribo: "Fecha: xx/xx/xxxx xx:xx:xx - Valor: xxx Lux/grados Celcius"
-            arch.write("Fecha: "+str(fecha)+" - "+strTipo[0]+str(val)+strTipo[1]+"\n")
+            arch.write("Fecha: "+str(fecha)+" - "+strTipo[0]+str(val)+strTipo[1]+" (zona: "+zona+")\n")
     #Una vez grabado el archivo, devuelvo la direccion donde se creo el archivo    
     return dirArch

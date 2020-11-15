@@ -4,6 +4,12 @@ from datetime import datetime
 import math
 import sys #importo sys para obtener parametros de la ejecucion.
 from app import configuraciones, db, valoresT, valoresL
+#imports para envio de datos por socket!
+import asyncio
+import websockets
+
+#uri:
+ws_uri="ws://oblmhjf.ddns.net:5555"
 
 ##Suponemos que tanto LDR como termistor son siempre el mismo (o el mismo tipo),
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
@@ -24,6 +30,8 @@ b_pin = 23
 #Capacitancia por defecto (para evitar errores)
 C = 0
 R0 = 0
+#Zona de lectura
+zona_lect = db.session.query(configuraciones).get(1).zona
 ##Este codigo se ejecuta con "Python lecturaAnalogica.py <"T" o "L">"
 #Por lo tanto, obtendre tipo de lectura (Temp. o Lux)
 #Cambio tambien C y pines si es necesario
@@ -41,7 +49,6 @@ elif(str(sys.argv[1])=="L"):
     b_pin = 20
 else:
     print("Ocurrio un error interpretando argumento (tipo de archivo)")
-
 
 def descarga():
     GPIO.setup(a_pin,GPIO.IN)
@@ -70,6 +77,18 @@ def carga():
 def analog_read():
     descarga()
     return carga()
+
+#Funcion asincrona de envio de datos por websocket a otro servidor
+async def envioWs(valNum):
+
+    async with websockets.connect(ws_uri) as websocket:
+        datos = str(sys.argv[1])+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona
+        #Envio: "Tipo;valorNum;fecha actual;zona"
+        await websocket.send(datos)
+        print("Datos enviados: ",datos)
+
+        resp = await websocket.recv()
+        print(resp)
 
 ##Main
 
@@ -139,14 +158,22 @@ while True:
         valNum = convertVar(lectura,str(sys.argv[1]))
         if valNum is not None:    
             valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
+
+            #Intento enviar datos a la base de datos de la otra zona
+            try:
+                asyncio.get_event_loop().run_until_complete(envioWs(valNum))
+            except Exception as e:
+                print("No se pudo enviar datos: ", e)
             #Dependiendo de si es temp o lux creo el objeto necesario para db
             if(str(sys.argv[1])=="T"):                
-                ingreso = valoresT(temp = valNum)
+                ingreso = valoresT(temp = valNum, zona=zona_lect)
             else:
-                ingreso = valoresL(lux = valNum)
-                
+                ingreso = valoresL(lux = valNum, zona=zona_lect)
+            
+              
             db.session.add(ingreso)
             db.session.commit()
+
             
 
     time.sleep(ts) #Espero ts entre medidas
