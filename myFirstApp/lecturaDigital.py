@@ -7,16 +7,17 @@ import asyncio
 import websockets
 
 #uri:
-ws_uri="ws://oblmhjf.ddns.net:5555"
-
+ws_uri="ws://obligatorio.ddns.net:8080"
+zona = "Montevideo"
 ts = 0
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
  
 base_dir = '/sys/bus/w1/devices/'
-device_folder = glob.glob(base_dir + '28*')[0]
-device_file = device_folder + '/w1_slave'
+device_folder = glob.glob(base_dir+ '28*')
+print(device_folder)
+device_file = device_folder[0] + '/w1_slave'
 
 def leerTemperatura():
     f = open(device_file, 'r')

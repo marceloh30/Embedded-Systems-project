@@ -8,8 +8,10 @@ from app import configuraciones, db, valoresT, valoresL
 import asyncio
 import websockets
 
+print(sys.argv)
+
 #uri:
-ws_uri="ws://oblmhjf.ddns.net:5555"
+ws_uri="ws://obligatorio.ddns.net:8080"
 
 ##Suponemos que tanto LDR como termistor son siempre el mismo (o el mismo tipo),
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
@@ -35,12 +37,12 @@ zona_lect = db.session.query(configuraciones).get(1).zona
 ##Este codigo se ejecuta con "Python lecturaAnalogica.py <"T" o "L">"
 #Por lo tanto, obtendre tipo de lectura (Temp. o Lux)
 #Cambio tambien C y pines si es necesario
-if(str(sys.argv[1])=="T"):
+if(str(sys.argv[2])=="T"):
 
     C = db.session.query(configuraciones).get(1).Ct*10**-9 #Ct
     R0 = (db.session.query(configuraciones).get(1).Rt)     #Rt
     #Mantengo pines
-elif(str(sys.argv[1])=="L"):
+elif(str(sys.argv[2])=="L"):
 
     C = (db.session.query(configuraciones).get(1).Cl)*10**-9 #Cl
     R0 = (db.session.query(configuraciones).get(1).Rl)      #Rl
@@ -82,7 +84,7 @@ def analog_read():
 async def envioWs(valNum):
 
     async with websockets.connect(ws_uri) as websocket:
-        datos = str(sys.argv[1])+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona
+        datos = str(sys.argv[2])+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona_lect
         #Envio: "Tipo;valorNum;fecha actual;zona"
         await websocket.send(datos)
         print("Datos enviados: ",datos)
@@ -126,11 +128,11 @@ def convertVar(lectura,tipo):
 ts = 5 # ts
 while True:
     #Refresco valores de C y R de bd de configuraciones
-    if(str(sys.argv[1])=="T"):
+    if(str(sys.argv[2])=="T"):
         
         C = db.session.query(configuraciones).get(1).Ct*10**-9 #Ct
         R0 = (db.session.query(configuraciones).get(1).Rt)     #Rt
-    elif(str(sys.argv[1])=="L"):
+    elif(str(sys.argv[2])=="L"):
 
         C = (db.session.query(configuraciones).get(1).Cl)*10**-9 #Cl
         R0 = (db.session.query(configuraciones).get(1).Rl)      #Rl
@@ -155,7 +157,7 @@ while True:
 
     print("Lectura: ", lectura)
     if lectura is not None:
-        valNum = convertVar(lectura,str(sys.argv[1]))
+        valNum = convertVar(lectura,str(sys.argv[2]))
         if valNum is not None:    
             valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
 
@@ -165,7 +167,7 @@ while True:
             except Exception as e:
                 print("No se pudo enviar datos: ", e)
             #Dependiendo de si es temp o lux creo el objeto necesario para db
-            if(str(sys.argv[1])=="T"):                
+            if(str(sys.argv[2])=="T"):                
                 ingreso = valoresT(temp = valNum, zona=zona_lect)
             else:
                 ingreso = valoresL(lux = valNum, zona=zona_lect)
