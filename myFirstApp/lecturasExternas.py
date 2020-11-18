@@ -10,9 +10,9 @@ def agregarDB(strDatos):
     if (datos[0]=="T"):                
         ingreso = valoresT(temp = float(datos[1]),zona=datos[3])
     elif (datos[0]=="TD"):
-        ingreso = valoresTD(temp = datos[1],fecha=datos[2],zona=datos[3])
+        ingreso = valoresTD(temp = float(datos[1]),zona=datos[3])
     elif (datos[0]=="L"):
-        ingreso = valoresL(lux = datos[1],fecha=datos[2],zona=datos[3])
+        ingreso = valoresL(lux = datos[1],zona=datos[3])
         
     db.session.add(ingreso)
     db.session.commit()

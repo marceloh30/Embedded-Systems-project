@@ -108,6 +108,11 @@ try:
 except Exception as e:
     print("Hubo un error adding confi: ", e)
 
+#Actualizo zona en configuraciones
+confi_actual = configuraciones.query.get(1)
+confi_actual.zona = zonaApp
+db.session.commit()
+print("Zona configurada: ", configuraciones.query.get(1).zona)
 
 def accionesIndex():
 	zonaT="Ninguna"
