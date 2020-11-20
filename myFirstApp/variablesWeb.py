@@ -4,18 +4,16 @@ from datetime import datetime
 from validate_email import validate_email
 #from modelosDB import configuraciones, db
 import math
-from app import configuraciones, db, valoresT, valoresL, valoresTD
+from app import configuraciones, db, valoresT, valoresL, valoresTD, datosSinEnviar
 
 temperatura = None
 temperaturaD = None
-#TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl
-valoresPredeterminados = [0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 550.0, 10000.0, 550.0, 0.0, 200.0]
-#Comienzo con valores predeterminados
-valoresIngresados = valoresPredeterminados 
 
 estadoAlarma = False
 tiempoEntreAlarmas = 0
 posicionLectura = 0
+
+valoresIngresados=[]
 
 def guardadoVariables():
     #guardo variables en base de datos

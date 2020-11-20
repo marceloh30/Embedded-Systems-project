@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 import math
 import sys #importo sys para obtener parametros de la ejecucion.
-from app import configuraciones, db, valoresT, valoresL
+from app import configuraciones, db, valoresT, valoresL, datosSinEnviar
 #imports para envio de datos por socket!
 import asyncio
 import websockets
@@ -82,8 +82,10 @@ def analog_read():
 
 #Funcion asincrona de envio de datos por websocket a otro servidor
 async def envioWs(valNum):
-
-    async with websockets.connect(ws_uri) as websocket:
+    timeout = 1 #Timeout pequeno para no afectar mediciones
+    try:
+        # make connection attempt
+        websocket = await asyncio.wait_for(websockets.connect(ws_uri), timeout)
         datos = str(sys.argv[2])+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona_lect
         #Envio: "Tipo;valorNum;fecha actual;zona"
         await websocket.send(datos)
@@ -91,6 +93,16 @@ async def envioWs(valNum):
 
         resp = await websocket.recv()
         print(resp)
+
+    except Exception as e:
+        print('Error al intentar enviar datos: posiblemente falla de conexion.', e)
+        #Agregar a base de datosSinEnviar
+        datoSinEnviar=datosSinEnviar(tipoVar=str(sys.argv[2]),valor=valNum)
+        db.session.add(datoSinEnviar)
+        db.session.commit()        
+
+    
+
 
 ##Main
 

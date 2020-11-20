@@ -12,14 +12,13 @@ zonaApp = str(sys.argv[1]) #Obtengo zona en parametro de ejecucion ("python3 app
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///obligatorio.db'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-#inicar la base de datos
 
+#inicio la base de datos
 db = SQLAlchemy(app)
-try:
-	db.create_all()
-except Exception as e:
-	print("Ya creado: ",e)
 
+######### Definicion de clases para db
+
+#Clase configuraciones: guardo en db parametros configurables, alarma y zona
 class configuraciones(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	TL = db.Column(db.Integer)
@@ -43,6 +42,7 @@ class configuraciones(db.Model):
 	def __repr__(self):
 		return '<configuraciones %r>' % self.TL
 
+#Clase valoresT: objeto con datos de temperatura analogica: valor, fecha de lectura y zona de lectura
 class valoresT(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 
@@ -53,6 +53,7 @@ class valoresT(db.Model):
 	def __repr__(self):
 		return '<valoresT %r>' % self.temp
 
+#Clase valoresTD: objeto con datos de temperatura dig: valor, fecha de lectura y zona de lectura
 class valoresTD(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 
@@ -68,6 +69,7 @@ class valoresTD(db.Model):
 	def __repr__(self):
 		return '<valoresTD %r>' % self.temp
 
+#Clase valoresT: objeto con datos de iluminancia, similar a temp. analogica
 class valoresL(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
 
@@ -83,9 +85,21 @@ class valoresL(db.Model):
 	def __repr__(self):
 		return '<valoresL %r>' % self.lux
 
+#Clase datosSinEnviar: objeto que contiene dato sin enviar con tipo de var, valNum, fecha, zona
+class datosSinEnviar(db.Model):
+	#Atributos
+	id = db.Column(db.Integer, primary_key = True)
+	tipoVar = db.Column(db.String(2))
+	valor = db.Column(db.Float)
+	fecha = db.Column(db.DateTime, default = datetime.now)
+	zona = db.Column(db.String(32), default = zonaApp)
+
+	def __repr__(self):
+		return {'tipo de dato':self.tipoVar,'valor':self.valor,'fecha':str(self.fecha)}
+######### Fin de clases
+
+
 import variablesWeb #Parece que este import TIENE que ir aca 
-
-
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -98,21 +112,6 @@ GPIO.setup(pin_led, GPIO.OUT)
 GPIO.output(pin_led, GPIO.LOW)
 
 app.secret_key = 'obligatorio' #Necesario para usar flash
-
-#Creo db de configuraciones si no fue creada aun
-confi = configuraciones(TL = 0, TH= 100, ts = 5, destino = "", tA = 4, Rt = 10000, Ct = 550, Rl = 10000, Cl = 550, TLD = 0, THD = 100)
-try:
-	if len(configuraciones.query.all()) < 1:
-		db.session.add(confi)
-		db.session.commit()
-except Exception as e:
-    print("Hubo un error adding confi: ", e)
-
-#Actualizo zona en configuraciones
-confi_actual = configuraciones.query.get(1)
-confi_actual.zona = zonaApp
-db.session.commit()
-print("Zona configurada: ", configuraciones.query.get(1).zona)
 
 def accionesIndex():
 	zonaT="Ninguna"
@@ -208,8 +207,6 @@ def tomaDatos():
 			
 		return redirect(url_for('index'))
 	return render_template('parametrosConfi.html')
-
-
 
 #Funcion para verificar si el string contiene numeros
 def str_conNums(str_in):
@@ -316,9 +313,26 @@ def downloadFile():
 
 ##"Main":
 
-#Verifico configuracion.txt:
-#variablesWeb.ver_archConf()
 #Corro el servidor web Flask:
 if __name__ == "__main__":
+
+    #Creo todo lo necesario para db
 	db.create_all()
+	#Una vez tengo todo creado, hago el commit para agregar las confs. si no fue realizado aun (ingreso valores por defecto)
+	confi = configuraciones(TL = 0, TH= 100, ts = 5, destino = "", tA = 4, Rt = 10000, Ct = 550, Rl = 10000, Cl = 550, TLD = 0, THD = 100, zona = "Montevideo", alarma="0 - 0")
+	try:
+		if len(configuraciones.query.all()) < 1:
+			db.session.add(confi)
+			db.session.commit()
+	except Exception as e:
+		print("Hubo un error adding confi: ", e)
+
+    #Actualizo zona en configuraciones (base de datos ya creada)
+	confi_actual = configuraciones.query.get(1)
+	confi_actual.zona = zonaApp
+	db.session.commit()
+	print("Zona configurada en base de datos:", configuraciones.query.get(1).zona)
+
+    #Una vez realizada la configuracion, inicio servidor web
 	app.run(host='192.168.0.200', port=8080, debug=True)
+	

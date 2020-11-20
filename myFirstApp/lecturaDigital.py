@@ -16,7 +16,6 @@ os.system('modprobe w1-therm')
  
 base_dir = '/sys/bus/w1/devices/'
 device_folder = glob.glob(base_dir+ '28*')
-print(device_folder)
 device_file = device_folder[0] + '/w1_slave'
 
 def leerTemperatura():
@@ -55,7 +54,7 @@ while True:
     
     #Intento enviar datos a la base de datos de la otra zona
     try:
-        asyncio.get_event_loop().run_until_complete(envioWs(valNum))
+        asyncio.get_event_loop().run_until_complete(envioWs(temperatura))
     except Exception as e:
         print("No se pudo enviar datos: ", e)
         
