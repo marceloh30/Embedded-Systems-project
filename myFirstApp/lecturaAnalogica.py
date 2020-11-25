@@ -11,7 +11,7 @@ import websockets
 print(sys.argv)
 
 #uri:
-ws_uri="ws://obligatorio.ddns.net:8080"
+ws_uri="ws://obligatorio.ddns.net:8081"
 
 ##Suponemos que tanto LDR como termistor son siempre el mismo (o el mismo tipo),
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.

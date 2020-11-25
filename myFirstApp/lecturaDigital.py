@@ -1,10 +1,11 @@
 import os
 import glob
 import time
-from app import configuraciones, db, valoresTD
+from app import configuraciones, db, valoresTD, datosSinEnviar
 #imports para envio de datos por socket!
 import asyncio
 import websockets
+from datetime import datetime
 
 #uri:
 ws_uri="ws://obligatorio.ddns.net:8080"
@@ -37,8 +38,10 @@ def Valortemp():
         
 #Funcion asincrona de envio de datos por websocket a otro servidor
 async def envioWs(valNum):
-
-    async with websockets.connect(ws_uri) as websocket:
+    timeout = 1 #Timeout pequeno para no afectar mediciones
+    try:
+        # make connection attempt
+        websocket = await asyncio.wait_for(websockets.connect(ws_uri), timeout)
         datos = str("TD")+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona
         #Envio: "Tipo;valorNum;fecha actual;zona"
         await websocket.send(datos)
@@ -46,7 +49,12 @@ async def envioWs(valNum):
 
         resp = await websocket.recv()
         print(resp)
-
+    except Exception as e:
+        print('Error al intentar enviar datos: posiblemente falla de conexion.', e)
+        #Agregar a base de datosSinEnviar
+        datoSinEnviar=datosSinEnviar(tipoVar="TD",valor=valNum)
+        db.session.add(datoSinEnviar)
+        db.session.commit()   
 
 while True:
     temperatura = Valortemp()

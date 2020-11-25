@@ -95,7 +95,8 @@ class datosSinEnviar(db.Model):
 	zona = db.Column(db.String(32), default = zonaApp)
 
 	def __repr__(self):
-		return {'tipo de dato':self.tipoVar,'valor':self.valor,'fecha':str(self.fecha)}
+		return '<dato sin enviar: %r>' % [self.tipoVar,self.valor]
+	
 ######### Fin de clases
 
 
@@ -319,7 +320,7 @@ if __name__ == "__main__":
     #Creo todo lo necesario para db
 	db.create_all()
 	#Una vez tengo todo creado, hago el commit para agregar las confs. si no fue realizado aun (ingreso valores por defecto)
-	confi = configuraciones(TL = 0, TH= 100, ts = 5, destino = "", tA = 4, Rt = 10000, Ct = 550, Rl = 10000, Cl = 550, TLD = 0, THD = 100, zona = "Montevideo", alarma="0 - 0")
+	confi = configuraciones()
 	try:
 		if len(configuraciones.query.all()) < 1:
 			db.session.add(confi)

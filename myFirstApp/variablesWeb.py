@@ -152,11 +152,11 @@ def envioAlarma():
     confi = configuraciones.query.get(1)
     if estadoAlarma == True:
 
-        if temperatura is None or float(temperatura) < confi.TL or float(temperatura) > confi.TD:
+        if temperatura is None or float(temperatura) < confi.TL or float(temperatura) > confi.TH:
             confi.alarma = "1 - 1"
         else:
             confi.alarma = "1 - 0"
-        if temperatura is None or float(temperaturaD) < confi.TLD or float(temperaturaD) > confi.THD:
+        if temperaturaD is None or float(temperaturaD) < confi.TLD or float(temperaturaD) > confi.THD:
             confi.alarma = confi.alarma + " - 1"
         else:
             confi.alarma = confi.alarma + " - 0"
