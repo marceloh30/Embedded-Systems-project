@@ -13,8 +13,8 @@ estadoAlarma = False
 tiempoEntreAlarmas = 0
 posicionLectura = 0
 
-valoresIngresados=[]
-
+#valoresIngresados=[0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 550.0, 10000.0, 550.0, 0.0, 200.0]#Areglar
+'''
 def guardadoVariables():
     #guardo variables en base de datos
     confi = configuraciones(TL = valoresIngresados[0], TH= valoresIngresados[1], ts = valoresIngresados[2], destino = valoresIngresados[3], tA = valoresIngresados[4], Rt = valoresIngresados[5], Ct = valoresIngresados[6], Rl = valoresIngresados[7], Cl = valoresIngresados[8], TLD = valoresIngresados[9], THD = valoresIngresados[10])
@@ -51,7 +51,7 @@ def guardadoVariables():
         print("TH = ", configuraciones.query.get(1).THD)       
     except Exception as e:
         print("Hubo un error: ", e)
-
+'''
 def verificacionVariable(variable, type): #Verifico si la variable es del tipo que espero 
     if not isinstance(variable, type):
         return False #Si es falso tomo prederterminado o el anterior dependiendo del caso
@@ -60,14 +60,16 @@ def verificacionVariable(variable, type): #Verifico si la variable es del tipo q
 
 def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl, TLD, THD):
     aux = "" #Variable para devolver los parametros erroneos y mostrarlos en pagina web
+    confi = configuraciones.query.get(1)
+
     if (verificacionVariable(TL, float)):
         if TL is not None:
             if TH is None:
-                val = valoresIngresados[1]
+                val = confi.TH
             else:
                 val = TH
             if TL < val:
-                valoresIngresados[0] = TL
+                confi.TL = TL
                 aux = "TL "
             
         #Si es None, osea no se ingreso nada no lo tomo como error y me quedo con el estado anterior
@@ -75,70 +77,71 @@ def cambioValores(TL,TH, ts, destino,tA, Rt, Ct, Rl, Cl, TLD, THD):
     if (verificacionVariable(TH, float)):
         if TH is not None:
             if TL is None:
-                val = valoresIngresados[0]
+                val = confi.TL
             else:
                 val = TL
             if TH > val:
-                valoresIngresados[1] = TH
+                confi.TH = TH
                 aux = aux + "TH "
         
     if (verificacionVariable(ts, float) and ts >= 5) or ts is None:
         if ts is not None:
-            valoresIngresados[2] = ts
+            confi.ts = ts
             aux = aux + "ts "
         
     if (validate_email(email_address=destino, check_regex=True, check_mx=True) or len(destino) == 0):
         if len(destino) != 0:
-            valoresIngresados[3] = destino
+            confi.destino = destino
             aux = aux + "destino "
 
     if (verificacionVariable(tA, float) and tA > 0) or tA is None:
         if tA is not None:
-            valoresIngresados[4] = tA
+            confi.tA = tA
             aux = aux + "tA "
         
     if (verificacionVariable(Rt, float) and Rt > 0) or Rt is None:
         if Rt is not None:
-            valoresIngresados[5] = Rt
+            confi.Rt = Rt
             aux = aux + "Rt "
 
     if (verificacionVariable(Ct, float) and Ct > 0) or Ct is None:
         if Ct is not None:
-            valoresIngresados[6] = Ct
+            confi.Ct = Ct
             aux = aux + "Ct "
 
     if (verificacionVariable(Rl, float) and Rl > 0) or Rl is None:
         if Rl is not None:
-            valoresIngresados[7] = Rl
+            confi.Rl = Rl
             aux = aux + "Rl "
                 
     if (verificacionVariable(Cl, float) and Cl > 0) or Cl is None:
         if Cl is not None:
-            valoresIngresados[8] = Cl
+            confi.Cl = Cl
             aux = aux + "Cl "
 
     if (verificacionVariable(TLD, float)):
         if TLD is not None:
             if THD is None:
-                val = valoresIngresados[10]
+                val = confi.THD
             else:
                 val = THD
-            if TL < val:
-                valoresIngresados[9] = TLD
+            if TLD < val:
+                confi.TLD = TLD
                 aux = aux  + " TLD"
                     
     if (verificacionVariable(THD, float)):
         if THD is not None:
             if TLD is None:
-                val = valoresIngresados[9]
+                val = confi.TLD
             else:
                 val = TLD
             if THD > val:
-                valoresIngresados[10] = THD
+                confi.THD = THD
                 aux = aux + " THD"
 
     #Guardo variables:
-    guardadoVariables()
+    db.session.commit()
+    #guardadoVariables()
 
     return aux
 
@@ -149,11 +152,11 @@ def envioAlarma():
     confi = configuraciones.query.get(1)
     if estadoAlarma == True:
 
-        if temperatura is None or float(temperatura) < float(valoresIngresados[0]) or float(temperatura) > float(valoresIngresados[1]):
+        if temperatura is None or float(temperatura) < confi.TL or float(temperatura) > confi.TD:
             confi.alarma = "1 - 1"
         else:
             confi.alarma = "1 - 0"
-        if temperatura is None or float(temperaturaD) < float(valoresIngresados[9]) or float(temperaturaD) > float(valoresIngresados[10]):
+        if temperatura is None or float(temperaturaD) < confi.TLD or float(temperaturaD) > confi.THD:
             confi.alarma = confi.alarma + " - 1"
         else:
             confi.alarma = confi.alarma + " - 0"

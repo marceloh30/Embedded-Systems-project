@@ -21,20 +21,20 @@ db = SQLAlchemy(app)
 #Clase configuraciones: guardo en db parametros configurables, alarma y zona
 class configuraciones(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	TL = db.Column(db.Integer)
-	TH = db.Column(db.Integer)
-	ts = db.Column(db.Integer)
-	destino = db.Column(db.String(64))
-	tA = db.Column(db.Integer)
+	TL = db.Column(db.Integer, default = 0)
+	TH = db.Column(db.Integer, default = 200)
+	ts = db.Column(db.Integer, default = 5)
+	destino = db.Column(db.String(64), default = " ")
+	tA = db.Column(db.Integer, default = 2)
 	#Valores de Rt y Ct para lecturaAnalogica de temp.
-	Rt = db.Column(db.Integer)
-	Ct = db.Column(db.Integer)
+	Rt = db.Column(db.Integer, default = 10000)
+	Ct = db.Column(db.Integer, default = 550)
 	#Valores de Rl y Cl para lecturaAnalogica de lux
-	Rl = db.Column(db.Integer)
-	Cl = db.Column(db.Integer)
+	Rl = db.Column(db.Integer, default = 10000)
+	Cl = db.Column(db.Integer, default = 550)
 	#Valores umbraales de temperatura para el sensor digital 
-	TLD = db.Column(db.Integer)
-	THD = db.Column(db.Integer)
+	TLD = db.Column(db.Integer, default = 0)
+	THD = db.Column(db.Integer, default = 20)
 	#Valores de zona (mdeo. o salinas) y alarma
 	zona = db.Column(db.String(32), default =zonaApp)
 	alarma = db.Column(db.String(12), default = "0 - 0")
