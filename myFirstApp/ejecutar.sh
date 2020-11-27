@@ -1,8 +1,12 @@
 #!/bin/bash
-python3 creacionTXT.py &
-pid=$!
-wait $pid
-echo Process $pid finished.
-python3 app.py &
-python3 alarma.py &
-python3 lecturaAnalogica.py T &
+##Recibo parametro ($1): zona elegida ("Salinas" o "Montevideo")
+#echo Zona elegida: $1
+python3 /home/pi/Desktop/obl/myFirstApp/app.py Montevideo &
+#'''
+#python3 /home/pi/Desktop/obl/myFirstApp/lecturaDigital.py $1 &
+#python3 /home/pi/Desktop/obl/myFirstApp/lecturasExternas.py $1 &
+#python3 /home/pi/Desktop/obl/myFirstApp/enviosAtrasados.py $1 &
+#python3 /home/pi/Desktop/obl/myFirstApp/alarma.py $1 &
+#python3 /home/pi/Desktop/obl/myFirstApp/lecturaAnalogica.py $1 T &
+#python3 /home/pi/Desktop/obl/myFirstApp/lecturaAnalogica.py $1 L &
+#'''

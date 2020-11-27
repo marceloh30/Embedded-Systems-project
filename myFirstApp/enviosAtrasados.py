@@ -7,8 +7,15 @@ from datetime import datetime
 N=20
 t_sleep=1*60 ##1 minuto
 
-#uri para el envio:
-ws_uri="ws://obligatorio.ddns.net:8081"
+#Primero obtengo zona de lectura
+zona_lect = db.session.query(configuraciones).get(1).zona
+
+#uri para envio:
+if (zona_lect == "Montevideo"):
+    ws_uri="ws://obligatorio.ddns.net:8081"
+else:   #Asumo solo dos zonas: Montevideo y Salinas
+    ws_uri="ws://oblmhjf.ddns.net:5555"
+
 
 #Funcion asincrona de envio de datos por websocket a otro servidor
 async def envioWs_datosSinEnviar(datoSinEnviar): #Funcion recibe objeto de clase datosSinEnviar

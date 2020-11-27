@@ -10,8 +10,14 @@ import websockets
 
 print(sys.argv)
 
+#Primero obtengo zona de lectura
+zona_lect = db.session.query(configuraciones).get(1).zona
+
 #uri:
-ws_uri="ws://obligatorio.ddns.net:8081"
+if (zona_lect == "Montevideo"):
+    ws_uri="ws://obligatorio.ddns.net:8081"
+else:   #Asumo solo dos zonas: Montevideo y Salinas
+    ws_uri="ws://oblmhjf.ddns.net:5555"
 
 ##Suponemos que tanto LDR como termistor son siempre el mismo (o el mismo tipo),
 ##por lo tanto, los siguientes valores caracteristicos de los mismos seran fijos.
@@ -32,8 +38,7 @@ b_pin = 23
 #Capacitancia por defecto (para evitar errores)
 C = 0
 R0 = 0
-#Zona de lectura
-zona_lect = db.session.query(configuraciones).get(1).zona
+
 ##Este codigo se ejecuta con "Python lecturaAnalogica.py <"T" o "L">"
 #Por lo tanto, obtendre tipo de lectura (Temp. o Lux)
 #Cambio tambien C y pines si es necesario
@@ -110,7 +115,7 @@ async def envioWs(valNum):
 #Funcion para convertir la resistencia leida en Temp o Lux
 def convertVar(lectura,tipo):
 
-    cocienteVcc=1.38/3.3 #hicimos medidas ;) -anterior: 1.20/3.3 
+    cocienteVcc=1.38/3.3 #hicimos medidas
     valRet = None #Si se mantiene es un error inesperado
     try:
         R = lectura/(abs(math.log(1-cocienteVcc)*C)) - R0
@@ -160,7 +165,8 @@ while True:
     #Verifico ademas que no haya ocurrido algun error en lectura (Configuracion del circuito erronea, etc)
     while i<10 and ult_lectura is not None:
         ult_lectura = analog_read()
-        lectura = lectura + ult_lectura
+        if (ult_lectura is not None):
+            lectura = lectura + ult_lectura
         i+=1
     if ult_lectura is None:
         lectura = None
@@ -172,21 +178,25 @@ while True:
         valNum = convertVar(lectura,str(sys.argv[2]))
         if valNum is not None:    
             valNum = round(valNum*10)/10 #Lo trunco a formato "T=x.x"
-
-            #Intento enviar datos a la base de datos de la otra zona
-            try:
-                asyncio.get_event_loop().run_until_complete(envioWs(valNum))
-            except Exception as e:
-                print("No se pudo enviar datos: ", e)
-            #Dependiendo de si es temp o lux creo el objeto necesario para db
-            if(str(sys.argv[2])=="T"):                
-                ingreso = valoresT(temp = valNum, zona=zona_lect)
-            else:
-                ingreso = valoresL(lux = valNum, zona=zona_lect)
-            
-              
-            db.session.add(ingreso)
-            db.session.commit()
+    else:
+        valNum = None
+    #Envio valNum aunque siendo algun valor o None para indicar error
+    # y que pueda saltar alarma:
+    
+    #Intento enviar datos a la base de datos de la otra zona
+    try:
+        asyncio.get_event_loop().run_until_complete(envioWs(valNum))
+    except Exception as e:
+        print("No se pudo enviar datos: ", e)
+    #Dependiendo de si es temp o lux creo el objeto necesario para db
+    if(str(sys.argv[2])=="T"):                
+        ingreso = valoresT(temp = valNum, zona=zona_lect)
+    else:
+        ingreso = valoresL(lux = valNum, zona=zona_lect)
+    
+      
+    db.session.add(ingreso)
+    db.session.commit()
 
             
 

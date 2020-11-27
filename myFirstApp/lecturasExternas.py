@@ -1,8 +1,17 @@
 import time
 import asyncio
 import websockets
-from app import db, valoresT, valoresL, valoresTD
+from app import db, configuraciones, valoresT, valoresL, valoresTD
 from datetime import datetime
+
+#Primero obtengo zona de lectura
+zona_lect = db.session.query(configuraciones).get(1).zona
+
+#uri:
+if (zona_lect == "Montevideo"):
+    puerto = 5555
+else:   #Asumo solo dos zonas: Montevideo y Salinas
+    puerto = 8081
 
 #Funcion para agregar datos recibidos a db del tipo de variable
 def agregarDB(strDatos):
@@ -38,7 +47,7 @@ async def recepcion(websocket, path):
     time.sleep(1) #Lo duermo 1 seg para evitar bloqueos
 
 
-start_server = websockets.serve(recepcion, "192.168.0.200", 5555)
+start_server = websockets.serve(recepcion, "192.168.0.200", puerto)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
