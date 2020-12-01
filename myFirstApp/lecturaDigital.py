@@ -67,7 +67,7 @@ async def envioWs(valNum):
     try:
         #Realizo intento de conexion
         websocket = await asyncio.wait_for(websockets.connect(ws_uri), timeout)
-        datos = str("TD")+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona
+        datos = str("TD")+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona_lect
         #Envio: "Tipo;valorNum;fecha actual;zona"
         await websocket.send(datos)
         print("Datos enviados: ",datos)
