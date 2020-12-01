@@ -115,9 +115,7 @@ app.secret_key = 'obligatorio' #Necesario para usar flash
 
 def accionesIndex():
 	#Inicializo variables para evitar errores
-	zonaT="Ninguna"
 	zonaL="Ninguna"
-	zonaTD="Ninguna"
 	lux = None
 
 	#Leo valores de temperatura actuales
@@ -131,14 +129,14 @@ def accionesIndex():
 	if valorT is not None: 
 		#Dejo que sea None para poder activar alarma
 		variablesWeb.temperatura = valorT.temp
-		zonaT=valorT.zona
+		variablesWeb.zonaT=valorT.zona
 	if valorL is not None:
 		lux = valorL.lux
 		zonaL=valorL.zona
 	if valorTD is not None:
 		#Idem a valorT
 		variablesWeb.temperaturaD = valorTD.temp
-		zonaTD=valorTD.zona
+		variablesWeb.zonaTD=valorTD.zona
 
 	#Leo estado de led
 	estado_led = GPIO.input(pin_led)
@@ -148,11 +146,11 @@ def accionesIndex():
 		
 		'led' : estado_led,
 		'valorT' : variablesWeb.temperatura,
-		'zonaT' : zonaT,
+		'zonaT' : variablesWeb.zonaT,
 		'valorL' : lux,
 		'zonaL' : zonaL,
 		'valorTD' : variablesWeb.temperaturaD,
-		'zonaTD' : zonaTD,
+		'zonaTD' : variablesWeb.zonaTD,
 		'estadoAlarma' : variablesWeb.estadoAlarma
 	}
 	return templateData

@@ -8,6 +8,8 @@ from app import configuraciones, db, valoresT, valoresL, valoresTD, datosSinEnvi
 
 temperatura = None
 temperaturaD = None
+zonaT = ""
+zonaTD = ""
 
 estadoAlarma = False
 tiempoEntreAlarmas = 0
@@ -114,11 +116,11 @@ def envioAlarma():
     confi = configuraciones.query.get(1)
     if estadoAlarma == True:
 
-        if temperatura is None or float(temperatura) < confi.TL or float(temperatura) > confi.TH:
+        if (temperatura is None or float(temperatura) < confi.TL or float(temperatura) > confi.TH) and zonaT == confi.zona:
             confi.alarma = "1 - 1"
         else:
             confi.alarma = "1 - 0"
-        if temperaturaD is None or float(temperaturaD) < confi.TLD or float(temperaturaD) > confi.THD:
+        if (temperaturaD is None or float(temperaturaD) < confi.TLD or float(temperaturaD) > confi.THD) and zonaTD == confi.zona:
             confi.alarma = confi.alarma + " - 1"
         else:
             confi.alarma = confi.alarma + " - 0"
@@ -132,11 +134,11 @@ def buscarVals(tipo,f_desde,f_hasta,zona):
 
     if (tipo == "T"):
         ##strArch = "valoresT.txt"
-        fechasDeseadas = valoresT.query.filter(valoresT.fecha.between(f_desde,f_hasta))
+        fechasDeseadas = valoresT.query.filter(valoresT.fecha.between(f_desde,f_hasta)).order_by(valoresT.fecha)
     elif (tipo == "L"):
-        fechasDeseadas = valoresL.query.filter(valoresL.fecha.between(f_desde,f_hasta))
+        fechasDeseadas = valoresL.query.filter(valoresL.fecha.between(f_desde,f_hasta)).order_by(valoresL.fecha)
     elif (tipo == "TD"):
-        fechasDeseadas = valoresTD.query.filter(valoresTD.fecha.between(f_desde,f_hasta))
+        fechasDeseadas = valoresTD.query.filter(valoresTD.fecha.between(f_desde,f_hasta)).order_by(valoresTD.fecha)
     
     
     #Defino listas a devolver
