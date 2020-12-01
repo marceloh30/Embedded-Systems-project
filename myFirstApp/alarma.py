@@ -20,8 +20,6 @@ La alarma se ha activado en la zona:
     server.quit()
 ####
 
-#
-tiempoAlarmas = 0.0
 
 while True:
     try:
@@ -39,7 +37,7 @@ while True:
                 zona = " Ambos sensores"
             else:
                 zona = " Sensor digital"
-            tiempoAlarmas = time.time()
+            
             print("Enviando aviso...")
             envioMail(destino, zona)
             time.sleep(float(tA)*60)#Duermo el programa hasta que tenga que sonar nuevamente la alarma
@@ -47,7 +45,6 @@ while True:
             print("Se encendio alarma.")
             time.sleep(30)#Duermo el programa 
         else:
-            tiempoAlarmas = 0
             time.sleep(30)#Duermo el programa
             pass
                
