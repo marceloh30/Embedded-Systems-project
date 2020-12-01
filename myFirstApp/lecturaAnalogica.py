@@ -8,12 +8,10 @@ from app import configuraciones, db, valoresT, valoresL, datosSinEnviar
 import asyncio
 import websockets
 
-print(sys.argv)
-
 #Primero obtengo zona de lectura
 zona_lect = db.session.query(configuraciones).get(1).zona
 
-#uri:
+#Obtengo uri segun zona:
 if (zona_lect == "Montevideo"):
     ws_uri="ws://obligatorio.ddns.net:8081"
 else:   #Asumo solo dos zonas: Montevideo y Salinas
@@ -89,7 +87,7 @@ def analog_read():
 async def envioWs(valNum):
     timeout = 1 #Timeout pequeno para no afectar mediciones
     try:
-        # make connection attempt
+        #Realizo intento de conexion
         websocket = await asyncio.wait_for(websockets.connect(ws_uri), timeout)
         datos = str(sys.argv[2])+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona_lect
         #Envio: "Tipo;valorNum;fecha actual;zona"
@@ -193,12 +191,9 @@ while True:
         ingreso = valoresT(temp = valNum, zona=zona_lect)
     else:
         ingreso = valoresL(lux = valNum, zona=zona_lect)
-    
       
     db.session.add(ingreso)
     db.session.commit()
-
-            
 
     time.sleep(ts) #Espero ts entre medidas
     

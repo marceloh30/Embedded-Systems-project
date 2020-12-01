@@ -10,7 +10,7 @@ from datetime import datetime
 #Primero obtengo zona de lectura
 zona_lect = db.session.query(configuraciones).get(1).zona
 
-#uri:
+#Obtengo uri segun zona:
 if (zona_lect == "Montevideo"):
     ws_uri="ws://obligatorio.ddns.net:8081"
 else:   #Asumo solo dos zonas: Montevideo y Salinas
@@ -65,7 +65,7 @@ def Valortemp():
 async def envioWs(valNum):
     timeout = 1 #Timeout pequeno para no afectar mediciones
     try:
-        # make connection attempt
+        #Realizo intento de conexion
         websocket = await asyncio.wait_for(websockets.connect(ws_uri), timeout)
         datos = str("TD")+";"+str(valNum)+";"+str(datetime.utcnow())+";"+zona
         #Envio: "Tipo;valorNum;fecha actual;zona"

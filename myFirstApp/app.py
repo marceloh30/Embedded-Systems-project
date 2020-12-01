@@ -7,8 +7,8 @@ import subprocess
 import os
 import sys #importo sys para obtener parametros de la ejecucion.
 
-zonaApp = str(sys.argv[1]) #Obtengo zona en parametro de ejecucion ("python3 app.py <zonaApp>")
-							  #** si no se ingresa bien, app no se inicia!
+zonaApp = str(sys.argv[1]) 	# Obtengo zona en parametro de ejecucion ("python3 app.py <zonaApp>")
+							# ** si no se ingresa bien, app no se inicia!
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///obligatorio.db'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -21,10 +21,14 @@ db = SQLAlchemy(app)
 #Clase configuraciones: guardo en db parametros configurables, alarma y zona
 class configuraciones(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
+	#Valores umbrales de temperatura (analogica)
 	TL = db.Column(db.Integer, default = 0)
 	TH = db.Column(db.Integer, default = 200)
+	#tiempo de espera entre medidas
 	ts = db.Column(db.Integer, default = 5)
+	#email de destino
 	destino = db.Column(db.String(64), default = " ")
+	#tiempo de espera entre envio de emails
 	tA = db.Column(db.Integer, default = 2)
 	#Valores de Rt y Ct para lecturaAnalogica de temp.
 	Rt = db.Column(db.Integer, default = 10000)
@@ -32,7 +36,7 @@ class configuraciones(db.Model):
 	#Valores de Rl y Cl para lecturaAnalogica de lux
 	Rl = db.Column(db.Integer, default = 10000)
 	Cl = db.Column(db.Integer, default = 550)
-	#Valores umbraales de temperatura para el sensor digital 
+	#Valores umbrales de temperatura para el sensor digital 
 	TLD = db.Column(db.Integer, default = 0)
 	THD = db.Column(db.Integer, default = 20)
 	#Valores de zona (mdeo. o salinas) y alarma
@@ -51,15 +55,11 @@ class valoresT(db.Model):
 	temp = db.Column(db.Float)
 	zona = db.Column(db.String(32), default= zonaApp)
 	def __repr__(self):
-		return '<valoresT %r>' % self.temp
+		return '<Lectura T: %r>' % [self.temp,self.zona,self.fecha]
 
 #Clase valoresTD: objeto con datos de temperatura dig: valor, fecha de lectura y zona de lectura
 class valoresTD(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
-
-	#Obtengo fecha actual sin microsegundos
-	#fechaPredet= datetime.now().replace(microsecond=0)
-	#fechaPredet= fechaPredet.replace(microsecond=0)
 
 	#Atributos de valoresT
 	fecha = db.Column(db.DateTime, default = datetime.now)
@@ -67,15 +67,11 @@ class valoresTD(db.Model):
 	zona = db.Column(db.String(32), default= zonaApp) 
 
 	def __repr__(self):
-		return '<valoresTD %r>' % self.temp
+		return '<Lectura TD: %r>' % [self.temp,self.zona,self.fecha]
 
 #Clase valoresT: objeto con datos de iluminancia, similar a temp. analogica
 class valoresL(db.Model):
 	id = db.Column(db.Integer, primary_key = True)
-
-	#Obtengo fecha actual sin microsegundos
-	#fechaPredet= datetime.now()
-	#fechaPredet= fechaPredet.replace(microsecond=0)
 
 	#Atributos de valoresL
 	fecha = db.Column(db.DateTime, default = datetime.now)
@@ -83,66 +79,71 @@ class valoresL(db.Model):
 	zona = db.Column(db.String(32), default= zonaApp)
 
 	def __repr__(self):
-		return '<valoresL %r>' % self.lux
+		return '<Lectura L: %r>' % [self.lux,self.zona,self.fecha]
 
 #Clase datosSinEnviar: objeto que contiene dato sin enviar con tipo de var, valNum, fecha, zona
 class datosSinEnviar(db.Model):
-	#Atributos
 	id = db.Column(db.Integer, primary_key = True)
+
+	#Atributos: tipo de variable, valor numerico, fecha de medida y zona de medida
 	tipoVar = db.Column(db.String(2))
 	valor = db.Column(db.Float)
 	fecha = db.Column(db.DateTime, default = datetime.now)
 	zona = db.Column(db.String(32), default = zonaApp)
 
 	def __repr__(self):
-		return '<dato sin enviar: %r>' % [self.tipoVar,self.valor]
+		return '<Dato sin enviar: %r>' % [self.tipoVar,self.valor]
 	
 ######### Fin de clases
 
+#Realizo este import aqui para evitar errores
+import variablesWeb  
 
-import variablesWeb #Parece que este import TIENE que ir aca 
-
+##Configuraciones de entradas y salidas
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 #Defino nro GPIO del led
 pin_led = 17
-#Inicializo estados a mostrar
-estado_led = 0
 # Defino como output el pin del led y lo dejo en off
 GPIO.setup(pin_led, GPIO.OUT)     
 GPIO.output(pin_led, GPIO.LOW)
 
+#Inicializo estado_led
+estado_led = 0
+
 app.secret_key = 'obligatorio' #Necesario para usar flash
 
 def accionesIndex():
+	#Inicializo variables para evitar errores
 	zonaT="Ninguna"
 	zonaL="Ninguna"
 	zonaTD="Ninguna"
 	lux = None
+
 	#Leo valores de temperatura actuales
-	#valoresT.query.all()
-	#print(valoresT.query.order_by(valoresT.id.desc()))
 	valorT = valoresT.query.get(len(valoresT.query.all()))
-	print(valorT)
-
+	#print(valorT)
 	valorL = valoresL.query.get(len(valoresL.query.all()))
-	print(valorL)
-
+	#print(valorL)
 	valorTD = valoresTD.query.get(len(valoresTD.query.all()))
 
+	#Verifico que los valores obtenidos no sean None
 	if valorT is not None: 
-	# Dejo que sea None para poder activar alarma (no necesario en L)
+		#Dejo que sea None para poder activar alarma
 		variablesWeb.temperatura = valorT.temp
 		zonaT=valorT.zona
 	if valorL is not None:
 		lux = valorL.lux
 		zonaL=valorL.zona
 	if valorTD is not None:
+		#Idem a valorT
 		variablesWeb.temperaturaD = valorTD.temp
 		zonaTD=valorTD.zona
 
-
+	#Leo estado de led
 	estado_led = GPIO.input(pin_led)
+
+	#Genero dict con datos para rutas index y ruta de acciones (alarma y led)
 	templateData = {
 		
 		'led' : estado_led,
@@ -156,6 +157,7 @@ def accionesIndex():
 	}
 	return templateData
 
+#Ruta principal
 @app.route("/")
 def index():
 	variablesWeb.envioAlarma()
@@ -306,6 +308,7 @@ def recTiempos():
 		return render_template('Historial.html', **templateData)
 
 	return render_template('askHistTemp.html')
+	
 #Muestra del historial de las fechas pedidas
 @app.route('/download')
 def downloadFile():

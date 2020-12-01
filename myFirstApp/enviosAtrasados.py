@@ -3,6 +3,7 @@ import time
 import asyncio
 import websockets
 from datetime import datetime
+
 ##Podria ver parametros: N envios y tiempo de sleep en confi... cambiar luego
 N=20
 t_sleep=1*60 ##1 minuto
@@ -10,7 +11,7 @@ t_sleep=1*60 ##1 minuto
 #Primero obtengo zona de lectura
 zona_lect = db.session.query(configuraciones).get(1).zona
 
-#uri para envio:
+#Obtengo uri segun zona para envio:
 if (zona_lect == "Montevideo"):
     ws_uri="ws://obligatorio.ddns.net:8081"
 else:   #Asumo solo dos zonas: Montevideo y Salinas

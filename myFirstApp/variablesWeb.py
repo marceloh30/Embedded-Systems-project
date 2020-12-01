@@ -13,45 +13,7 @@ estadoAlarma = False
 tiempoEntreAlarmas = 0
 posicionLectura = 0
 
-#valoresIngresados=[0.0, 200.0, 5.0, "nadie", 10.0, 10000.0, 550.0, 10000.0, 550.0, 0.0, 200.0]#Areglar
-'''
-def guardadoVariables():
-    #guardo variables en base de datos
-    confi = configuraciones(TL = valoresIngresados[0], TH= valoresIngresados[1], ts = valoresIngresados[2], destino = valoresIngresados[3], tA = valoresIngresados[4], Rt = valoresIngresados[5], Ct = valoresIngresados[6], Rl = valoresIngresados[7], Cl = valoresIngresados[8], TLD = valoresIngresados[9], THD = valoresIngresados[10])
-    try:
-        if len(configuraciones.query.all()) < 1:
-            db.session.add(confi)
-            db.session.commit()
-        else:
-            confiVieja = configuraciones.query.get(1)
-            confiVieja.TL = confi.TL
-            confiVieja.TH = confi.TH
-            confiVieja.ts = confi.ts
-            confiVieja.destino = confi.destino
-            confiVieja.tA = confi.tA
-            confiVieja.Rt = confi.Rt
-            confiVieja.Ct = confi.Ct
-            confiVieja.Rl = confi.Rl
-            confiVieja.Cl = confi.Cl
-            confiVieja.TLD = confi.TLD
-            confiVieja.THD = confi.THD            
-            
-            db.session.commit()
-        print("TL = ", configuraciones.query.get(1).TL)
-        print("TH = ", configuraciones.query.get(1).TH)
-        print("ts = ", configuraciones.query.get(1).ts)
-        print("destino = ", configuraciones.query.get(1).destino)
-        print("tA = ", configuraciones.query.get(1).tA)
-        print("Rt = ", configuraciones.query.get(1).Rt)
-        print("Ct = ", configuraciones.query.get(1).Ct)
-        print("Rl = ", configuraciones.query.get(1).Rl)
-        print("Cl = ", configuraciones.query.get(1).Cl)
-        print("alarma = ", configuraciones.query.get(1).alarma) 
-        print("TL = ", configuraciones.query.get(1).TLD)
-        print("TH = ", configuraciones.query.get(1).THD)       
-    except Exception as e:
-        print("Hubo un error: ", e)
-'''
+
 def verificacionVariable(variable, type): #Verifico si la variable es del tipo que espero 
     if not isinstance(variable, type):
         return False #Si es falso tomo prederterminado o el anterior dependiendo del caso
