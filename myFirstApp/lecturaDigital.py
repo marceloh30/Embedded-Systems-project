@@ -6,6 +6,7 @@ from app import configuraciones, db, valoresTD, datosSinEnviar
 import asyncio
 import websockets
 from datetime import datetime
+from w1thermsensor import W1ThermSensor
 
 #Primero obtengo zona de lectura
 zona_lect = db.session.query(configuraciones).get(1).zona
@@ -17,7 +18,8 @@ else:   #Asumo solo dos zonas: Montevideo y Salinas
     ws_uri="ws://oblmhjf.ddns.net:5555"
 
 ts = 0
-
+sensor = W1ThermSensor()
+'''
 os.system('sudo modprobe w1-gpio')
 os.system('sudo modprobe w1-therm')
 try: 
@@ -62,6 +64,7 @@ def Valortemp():
     return temp
         
 #Funcion asincrona de envio de datos por websocket a otro servidor
+
 async def envioWs(valNum):
     timeout = 1 #Timeout pequeno para no afectar mediciones
     try:
@@ -80,17 +83,17 @@ async def envioWs(valNum):
         datoSinEnviar=datosSinEnviar(tipoVar="TD",valor=valNum)
         db.session.add(datoSinEnviar)
         db.session.commit()   
-
+'''
 while True:
-    temperatura = Valortemp()
+    temperatura = sensor.get_temperature()#Valortemp()
     print("El valor de la temperatura es: " + str(temperatura))
     
-    #Intento enviar datos a la base de datos de la otra zona
+    '''#Intento enviar datos a la base de datos de la otra zona
     try:
         asyncio.get_event_loop().run_until_complete(envioWs(temperatura))
     except Exception as e:
         print("No se pudo enviar datos: ", e)
-        
+    '''    
     ingreso = valoresTD(temp = temperatura)
 
     db.session.add(ingreso)
