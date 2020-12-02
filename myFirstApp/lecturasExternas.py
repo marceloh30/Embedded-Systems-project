@@ -30,6 +30,9 @@ def agregarDB(strDatos):
         ingreso = valoresL(lux = float(datos[1]),fecha = fechaRec,zona=datos[3])
   
     db.session.add(ingreso)
+    valoresT.query.order_by(valoresT.fecha.desc()) #Ordeno para cuando agrego los balores a DB y asi siempre mostrar los mas actuales
+    valoresTD.query.order_by(valoresTD.fecha.desc())
+    valoresL.query.order_by(valoresL.fecha.desc())
     db.session.commit()
             
 #Defino funcion asincrona de recepcion

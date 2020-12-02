@@ -71,7 +71,6 @@ def carga():
         count = count + 1
         pass
     t2 = time.time()
-    print(count)
     descarga()
     if count >= 500000:
         ret = None
