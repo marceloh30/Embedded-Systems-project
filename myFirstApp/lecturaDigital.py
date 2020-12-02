@@ -19,49 +19,6 @@ else:   #Asumo solo dos zonas: Montevideo y Salinas
 
 ts = 0
 sensor = W1ThermSensor()
-'''
-os.system('sudo modprobe w1-gpio')
-os.system('sudo modprobe w1-therm')
-try: 
-    base_dir = '/sys/bus/w1/devices/'
-    device_folder = glob.glob(base_dir+ '28*')
-    device_file = device_folder[0] + '/w1_slave'
-except Exception as e:
-    print("Ocurrio un error al buscar directorio, posible sensor roto.",e)
-    #Aqui reinicio el programa para intentar obtener bien el directorio
-    # y asi puedo leer correctamente temperatura digital
-    os.system("python3 lecturaDigital.py Montevideo")
-    exit()
-    
-    
-
-def leerTemperatura():
-    #creo lines vacio por si no puedo abrir archivo
-    lines = None
-    try:
-        f = open(device_file, 'r')
-        lines = f.readlines()
-        f.close()
-    except Exception as e:
-        print("Ocurrio un error al abrir archivo: ",e)
-        
-    return lines
- 
-def Valortemp():
-    #Si no puedo abrir arch, es decir no puedo leer temp,
-    # le mando un none y asi puedo activar alarma:
-    lines = leerTemperatura()
-    if (lines is None):
-        temp = None
-    else:            
-        while lines[0].strip()[-3:] != 'YES':
-            time.sleep(0.2)
-            lines = leerTemperatura()
-        equals_pos = lines[1].find('t=')
-        if equals_pos != -1:
-            temp_string = lines[1][equals_pos+2:]
-            temp = float(temp_string) / 1000.0
-    return temp
         
 #Funcion asincrona de envio de datos por websocket a otro servidor
 
@@ -83,17 +40,20 @@ async def envioWs(valNum):
         datoSinEnviar=datosSinEnviar(tipoVar="TD",valor=valNum)
         db.session.add(datoSinEnviar)
         db.session.commit()   
-'''
+
 while True:
-    temperatura = sensor.get_temperature()#Valortemp()
-    print("El valor de la temperatura es: " + str(temperatura))
-    
-    '''#Intento enviar datos a la base de datos de la otra zona
+    #Intento enviar datos a la base de datos de la otra zona
     try:
+        temperatura = sensor.get_temperature()#Obtengo el valor de la temperatura
+        print("El valor de la temperatura es: " + str(temperatura))
+        asyncio.get_event_loop().run_until_complete(envioWs(temperatura))
+    except IndexError:
+        print("Error en el sensor digital")
+        temperatura = None
         asyncio.get_event_loop().run_until_complete(envioWs(temperatura))
     except Exception as e:
         print("No se pudo enviar datos: ", e)
-    '''    
+        
     ingreso = valoresTD(temp = temperatura)
 
     db.session.add(ingreso)
@@ -101,6 +61,3 @@ while True:
 
     tiempo = db.session.query(configuraciones).get(1).ts
     time.sleep(tiempo)
-
-    
-
