@@ -178,8 +178,8 @@ def action(deviceName, action):
 			variablesWeb.estadoAlarma = False
 	
 	#Realizo la actualizacion de datos para index:
-	templateData = accionesIndex()
 	variablesWeb.envioAlarma()
+	templateData = accionesIndex()	
 	return render_template('index.html', **templateData)
 
 #Ruta de envio y recepcion de parametros
