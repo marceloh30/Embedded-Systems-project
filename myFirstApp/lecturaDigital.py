@@ -1,6 +1,7 @@
 import os
 import glob
 import time
+time.sleep(120)
 from app import configuraciones, db, valoresTD, datosSinEnviar
 #imports para envio de datos por socket!
 import asyncio

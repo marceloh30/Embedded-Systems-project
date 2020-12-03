@@ -1,5 +1,6 @@
 from app import configuraciones, db, datosSinEnviar
 import time
+time.sleep(120)
 import asyncio
 import websockets
 from datetime import datetime

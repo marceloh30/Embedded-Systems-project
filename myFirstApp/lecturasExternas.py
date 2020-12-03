@@ -1,4 +1,5 @@
 import time
+time.sleep(120)
 import asyncio
 import websockets
 from app import db, configuraciones, valoresT, valoresL, valoresTD

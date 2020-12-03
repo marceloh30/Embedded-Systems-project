@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+time.sleep(120)
 from datetime import datetime
 import math
 import sys #importo sys para obtener parametros de la ejecucion.
@@ -50,8 +51,8 @@ elif(str(sys.argv[2])=="L"):
     C = (db.session.query(configuraciones).get(1).Cl)*10**-9 #Cl
     R0 = (db.session.query(configuraciones).get(1).Rl)      #Rl
     #Redefino pines de entrada y salida para Lux
-    a_pin = 16
-    b_pin = 20
+    a_pin = 24
+    b_pin = 25
 else:
     print("Ocurrio un error interpretando argumento (tipo de archivo)")
 
@@ -130,7 +131,7 @@ def convertVar(lectura,tipo):
                 
             elif (tipo == "L"):
                 #Realizo conversion segun Cl,Rl: (VERSION EXPERIMENTAL)
-                valRet = Lo * math.pow(R/Ro_LDR,-1/gama_LDR)
+                valRet =(1.25*10**7)*R**-1.4059  #Lo * math.pow(R/Ro_LDR,-1/gama_LDR)
                 print("Lux:",valRet)
                 
         else:

@@ -11,7 +11,7 @@ else #Supongo zona Montevideo o Salinas
   PUERTO=8081
 fi
 
-LOGFILE=/home/pi/Documents/obl/logs/ufw_ddnsip.log
+LOGFILE=/home/pi/Documents/logs/ufw_ddnsip.log
 
 Current_IP=$(host $HOSTNAME | head -n1 | cut -f4 -d' ')
 
