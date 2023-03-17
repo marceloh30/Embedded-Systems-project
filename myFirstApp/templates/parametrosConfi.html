@@ -19,9 +19,9 @@
         <div class="container-fluid text-center p-3 my-3">
             {% block content %}
                 <form action="" method="post">
-                    <label for="TL">Temperatura Baja: </label>
+                    <label for="TL">Temperatura Baja Analogica: </label>
                     <input type="float" id="TL" name="TL" /><br><br>
-                    <label for="TH">Temperatura Alta: </label>
+                    <label for="TH">Temperatura Alta Analogica: </label>
                     <input type="float" id="TH" name="TH" /><br><br>
                     <label for="ts">Tiempo entre medidas(segundos): </label>
                     <input type="float" id="ts" name="ts" /><br><br>
@@ -37,6 +37,10 @@
                     <input type="float" id="Rl" name="Rl" /><br><br>
                     <label for="Cl">Valor de Capacitancia de LDR(en nano faradios): </label>
                     <input type="float" id="Cl" name="Cl" /><br><br>
+                    <label for="TLD">Temperatura Baja Digital: </label>
+                    <input type="float" id="TLD" name="TLD" /><br><br>
+                    <label for="THD">Temperatura Alta Digital: </label>
+                    <input type="float" id="THD" name="THD" /><br><br>
         
                     <input type="submit" id="send-signup" name="signup" value="Registrar" />
                 </form>

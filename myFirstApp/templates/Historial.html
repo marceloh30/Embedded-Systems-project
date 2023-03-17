@@ -31,10 +31,14 @@ th, td {
 	<tr>
 		<th>Fecha y hora</th> 
 		<th>{{tipoVal}}</th>
+		<th>Zona</th>
 	</tr>
 	<tr>
 		{% macro fecha(indice) -%}
 			{{fechas[indice]}}
+		{%- endmacro %}
+		{% macro zona(indice) -%}
+			{{zonas[indice]}}
 		{%- endmacro %}
 		{% set i=[]%}
 		{% for val in vals %}
@@ -44,6 +48,8 @@ th, td {
 					<input type="hidden" name="handles[]" value="{{fecha(i|length)}}"/> {{fecha(i|length)}}
 				</td><td>			
 					<input type="hidden" name="handles[]" value="{{val}}"/> {{val}}				
+				</td><td>			
+					<input type="hidden" name="handles[]" value="{{zona(i|length)}}"/> {{zona(i|length)}}
 				</td>
 			</tr>		
 			{% if i.append(1) %}{% endif %} 
